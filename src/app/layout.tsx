@@ -1,6 +1,6 @@
-import { ThemeProvider } from '@/context/ThemeContext';
-import './globals.css';
-import localFont from "next/font/local"
+import { ThemeProvider } from '@/context/ThemeContext'
+import './globals.css'
+import localFont from 'next/font/local'
 
 const dana = localFont({
   src: [
@@ -46,20 +46,16 @@ const morabba = localFont({
   display: 'swap',
 })
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="fa" dir="rtl" className={`${dana.variable} ${morabba.variable}`}>
       <body className={`${dana.className} dark:bg-gray-900`}>
-           <ThemeProvider>
-        {children}
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
