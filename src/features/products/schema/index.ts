@@ -22,9 +22,10 @@ const bookSchema = Joi.object({
   price: Joi.number().required(),
   stock: Joi.number().integer().required(),
   thumbnail: Joi.string().allow(null).optional(),
-  images: Joi.array().items(Joi.string()).required(),
+  images: Joi.array().items(Joi.string()).allow(null).optional(),
   categoryId: Joi.string().required(),
   isActive: Joi.boolean().default(true),
+  topics: Joi.array().items(Joi.string()).allow(null).optional(),
 })
 
 interface IBookAdd {
@@ -47,8 +48,9 @@ interface IBookAdd {
   stock: number
   thumbnail?: string | null
   isActive?: boolean
-  images: string[]
+  images?: string[] | null
   categoryId: string
+  topics?: string[] | null
 }
 
 export { bookSchema, type IBookAdd }
