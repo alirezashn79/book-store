@@ -1,0 +1,19 @@
+model Order {
+    id          Int          @id @default(autoincrement())
+    user        User         @relation(fields: [userId], references: [id])
+    userId      Int
+    status      OrderStatus  @default(PENDING)
+    totalAmount Float
+    items       OrderItem[]
+    transaction Transaction?
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+}
+
+enum OrderStatus {
+    PENDING
+    PROCESSING
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}

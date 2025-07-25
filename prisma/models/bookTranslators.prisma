@@ -1,0 +1,8 @@
+model BookTranslator {
+    book         Book       @relation(fields: [bookId], references: [id])
+    bookId       Int
+    translator   Translator @relation(fields: [translatorId], references: [id])
+    translatorId Int
+
+    @@id([bookId, translatorId])
+}

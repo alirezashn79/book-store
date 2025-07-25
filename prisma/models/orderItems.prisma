@@ -1,0 +1,10 @@
+model OrderItem {
+    id         Int   @id @default(autoincrement())
+    order      Order @relation(fields: [orderId], references: [id])
+    orderId    Int
+    book       Book  @relation(fields: [bookId], references: [id])
+    bookId     Int
+    quantity   Int
+    unitPrice  Float
+    totalPrice Float
+}

@@ -1,0 +1,28 @@
+model Book {
+    id              Int              @id @default(autoincrement())
+    title           String
+    description     String?
+    isbn            String           @unique
+    publicationDate DateTime
+    price           Float
+    stock           Int              @default(0) // تعداد موجودی برای نسخه فیزیکی
+    pages           Int?
+    coverImage      String?
+    pdfUrl          String? // در صورت PDF یا eBook
+    format          BookFormat
+    publisher       Publisher?       @relation(fields: [publisherId], references: [id])
+    publisherId     Int?
+    categories      BookCategory[]
+    topics          BookTopic[]
+    authors         BookAuthor[]
+    translators     BookTranslator[]
+    orderItems      OrderItem[]
+    reviews         Review[]
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
+}
+
+enum BookFormat {
+    PHYSICAL
+    PDF
+}

@@ -1,0 +1,7 @@
+model Translator {
+    id        Int              @id @default(autoincrement())
+    firstName String
+    lastName  String
+    biography String?
+    bookLinks BookTranslator[]
+}

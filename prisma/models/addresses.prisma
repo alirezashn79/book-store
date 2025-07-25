@@ -1,0 +1,12 @@
+model Address {
+    id         Int     @id @default(autoincrement())
+    user       User    @relation(fields: [userId], references: [id])
+    userId     Int
+    country    String
+    state      String
+    city       String
+    street     String
+    postalCode String
+    isDefault  Boolean @default(false)
+    type       String? // e.g. "BILLING" or "SHIPPING"
+}

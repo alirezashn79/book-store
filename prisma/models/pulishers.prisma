@@ -1,0 +1,7 @@
+model Publisher {
+    id          Int     @id @default(autoincrement())
+    name        String
+    website     String?
+    description String?
+    books       Book[]
+}

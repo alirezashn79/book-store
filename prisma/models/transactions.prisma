@@ -1,0 +1,21 @@
+model Transaction {
+    id              Int               @id @default(autoincrement())
+    order           Order             @relation(fields: [orderId], references: [id])
+    orderId         Int               @unique
+    transactionDate DateTime          @default(now())
+    amount          Float
+    method          PaymentMethod     @default(DIRECT_PAY)
+    status          TransactionStatus @default(PENDING)
+    reference       String? // شماره پیگیری یا Reference Bank
+}
+
+enum PaymentMethod {
+    CART_TO_CART
+    DIRECT_PAY
+}
+
+enum TransactionStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}

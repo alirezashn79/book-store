@@ -1,0 +1,10 @@
+model Author {
+    id        Int          @id @default(autoincrement())
+    firstName String
+    lastName  String
+    biography String?
+    birthDate DateTime?
+    deathDate DateTime?
+    photo     String?
+    bookLinks BookAuthor[]
+}
