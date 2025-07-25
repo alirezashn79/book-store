@@ -33,26 +33,25 @@ export class ApiResponseHandler {
   }
 
   static notFound(message?: string, error?: unknown): NextResponse<ApiErrorResponse> {
-    return this.error(error || { code: 'NOT_FOUND' }, message || 'Resource not found', 404)
+    return this.error(message || 'Resource not found', 404, error || { code: 'NOT_FOUND' })
   }
 
   static unauthorized(message?: string, error?: unknown): NextResponse<ApiErrorResponse> {
-    return this.error(error || { code: 'UNAUTHORIZED' }, message || 'Unauthorized access', 401)
+    return this.error(message || 'Unauthorized access', 401, error || { code: 'UNAUTHORIZED' })
   }
 
   static forbidden(message?: string, error?: unknown): NextResponse<ApiErrorResponse> {
-    return this.error(error || { code: 'FORBIDDEN' }, message || 'Access forbidden', 403)
+    return this.error(message || 'Access forbidden', 403, error || { code: 'FORBIDDEN' })
   }
 
   static internalError(message?: string, error?: unknown): NextResponse<ApiErrorResponse> {
-    return this.error(error || { code: 'INTERNAL_ERROR' }, message || 'Internal server error', 500)
+    return this.error(message || 'Internal server error', 500, error || { code: 'INTERNAL_ERROR' })
   }
 
   static validationError(errors: unknown, message?: string): NextResponse<ApiErrorResponse> {
-    return this.error(
-      { code: 'VALIDATION_ERROR', details: errors },
-      message || 'Validation failed',
-      422
-    )
+    return this.error(message || 'Validation failed', 422, {
+      code: 'VALIDATION_ERROR',
+      details: errors,
+    })
   }
 }
