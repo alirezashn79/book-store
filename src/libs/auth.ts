@@ -1,13 +1,14 @@
-import { TokenPayload } from '@/types/api'
+import { ApiErrorResponse, TokenPayload } from '@/types/api'
 import { ApiResponseHandler } from '@/utils/apiResponse'
 import JWT from 'jsonwebtoken'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from './prisma'
 
 const JWT_SECRET = process.env.JWT_SECRET ?? ''
 
 export async function getCurrentUser(request: NextRequest): Promise<TokenPayload | null> {
   const authHeader = request.headers.get('Authorization')
+
   if (!authHeader?.startsWith('Bearer')) return null
 
   const token = authHeader.substring(7)
@@ -27,6 +28,8 @@ export async function getCurrentUser(request: NextRequest): Promise<TokenPayload
       },
     })
 
+    if (!user) return null
+
     return user
   } catch (error) {
     console.error(error)
@@ -34,7 +37,7 @@ export async function getCurrentUser(request: NextRequest): Promise<TokenPayload
   }
 }
 
-export function adminOnly(user: TokenPayload | null) {
+export function adminOnly(user: TokenPayload | null): NextResponse<ApiErrorResponse> | undefined {
   if (!user) {
     return ApiResponseHandler.unauthorized()
   }

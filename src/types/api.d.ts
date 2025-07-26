@@ -18,4 +18,5 @@ export interface ApiErrorResponse {
 //   phone: user.phone,
 //   role: user.role,
 export type TokenPayload = Pick<User, 'id' | 'name' | 'email' | 'phone' | 'role'>
+export type Params = { params: Promise<{ id: string }> }
 export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse

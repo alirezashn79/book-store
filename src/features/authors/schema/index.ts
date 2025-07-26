@@ -14,4 +14,9 @@ export const createAuthorSchema = z.object({
     .refine((d) => !d || !isNaN(Date.parse(d)), { message: 'تاریخ نامعتبر است' }),
   photoId: z.string().optional(),
 })
+export const authorUpdateSchema = createAuthorSchema
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'حداقل یک فیلد باید برای بروزرسانی ارسال شود.',
+  })
 export type CreateAuthorInput = z.infer<typeof createAuthorSchema>

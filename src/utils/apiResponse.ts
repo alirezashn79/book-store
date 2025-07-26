@@ -33,23 +33,31 @@ export class ApiResponseHandler {
   }
 
   static notFound(message?: string, error?: unknown): NextResponse<ApiErrorResponse> {
-    return this.error(message || 'Resource not found', 404, error || { code: 'NOT_FOUND' })
+    return this.error(message || 'منبع مورد نظر پیدا نشد', 404, error || { code: 'NOT_FOUND' })
   }
 
   static unauthorized(message?: string, error?: unknown): NextResponse<ApiErrorResponse> {
-    return this.error(message || 'Unauthorized access', 401, error || { code: 'UNAUTHORIZED' })
+    return this.error(message || 'دسترسی غیرمجاز است', 401, error || { code: 'UNAUTHORIZED' })
   }
 
   static forbidden(message?: string, error?: unknown): NextResponse<ApiErrorResponse> {
-    return this.error(message || 'Access forbidden', 403, error || { code: 'FORBIDDEN' })
+    return this.error(
+      message || 'شما مجوز دسترسی به این بخش را ندارید',
+      403,
+      error || { code: 'FORBIDDEN' }
+    )
   }
 
   static internalError(message?: string, error?: unknown): NextResponse<ApiErrorResponse> {
-    return this.error(message || 'Internal server error', 500, error || { code: 'INTERNAL_ERROR' })
+    return this.error(
+      message || 'خطای داخلی سرور رخ داده است',
+      500,
+      error || { code: 'INTERNAL_ERROR' }
+    )
   }
 
   static validationError(errors: unknown, message?: string): NextResponse<ApiErrorResponse> {
-    return this.error(message || 'Validation failed', 422, {
+    return this.error(message || 'اعتبارسنجی داده‌ها با خطا مواجه شد', 422, {
       code: 'VALIDATION_ERROR',
       details: errors,
     })

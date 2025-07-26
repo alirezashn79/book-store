@@ -6,14 +6,18 @@ import { NextRequest } from 'next/server'
 
 export async function GET() {
   const authors = await prisma.author.findMany({
-    orderBy: { lastName: 'desc' },
-    include: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
       photo: {
         select: {
+          id: true,
           url: true,
         },
       },
     },
+    orderBy: { lastName: 'desc' },
   })
 
   return ApiResponseHandler.success(authors)
@@ -22,7 +26,8 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    adminOnly(user)
+    const authResponse = adminOnly(user)
+    if (authResponse) return authResponse
 
     const body = await request.json()
 
