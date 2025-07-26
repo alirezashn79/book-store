@@ -1,8 +1,10 @@
+import { adminOnly, getCurrentUser } from '@/libs/auth'
 import { prisma } from '@/libs/prisma'
 import { Params } from '@/types/api'
 import { ApiResponseHandler } from '@/utils/apiResponse'
+import { NextRequest } from 'next/server'
 
-export async function GET(request: Request, { params }: Params) {
+export async function GET(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params
     const media = await prisma.media.findUnique({
@@ -21,8 +23,11 @@ export async function GET(request: Request, { params }: Params) {
   }
 }
 
-export async function DELETE(request: Request, { params }: Params) {
+export async function DELETE(request: NextRequest, { params }: Params) {
   try {
+    const user = await getCurrentUser(request)
+    const authResponse = adminOnly(user)
+    if (authResponse) return authResponse
     const { id } = await params
 
     const media = await prisma.media.findUnique({

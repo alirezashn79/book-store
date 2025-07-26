@@ -45,10 +45,10 @@ export async function GET(request: Request, { params }: Params) {
 
 export async function PUT(request: NextRequest, { params }: Params) {
   try {
-    const { id } = await params
     const user = await getCurrentUser(request)
     const authResponse = adminOnly(user)
     if (authResponse) return authResponse
+    const { id } = await params
 
     const body = await request.json()
 
@@ -77,8 +77,11 @@ export async function PUT(request: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(request: Request, { params }: Params) {
+export async function DELETE(request: NextRequest, { params }: Params) {
   try {
+    const user = await getCurrentUser(request)
+    const authResponse = adminOnly(user)
+    if (authResponse) return authResponse
     const { id } = await params
     const author = await prisma.author.findUnique({
       where: {

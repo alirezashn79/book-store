@@ -39,10 +39,10 @@ export async function GET(request: NextRequest, { params }: Params) {
 
 export async function PUT(request: NextRequest, { params }: Params) {
   try {
-    const { id } = await params
     const user = await getCurrentUser(request)
     const authResponse = adminOnly(user)
     if (authResponse) return authResponse
+    const { id } = await params
 
     const body = await request.json()
     const validationResult = translatorUpdateSchema.safeParse(body)
@@ -65,6 +65,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
+    const user = await getCurrentUser(request)
+    const authResponse = adminOnly(user)
+    if (authResponse) return authResponse
     const { id } = await params
 
     const translatorId = await prisma.translator.findUnique({
