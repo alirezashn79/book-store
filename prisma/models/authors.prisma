@@ -5,6 +5,7 @@ model Author {
     biography String?
     birthDate DateTime?
     deathDate DateTime?
-    photo     String?
     bookLinks BookAuthor[]
+    photo     Media?       @relation(fields: [photoId], references: [id])
+    photoId   String?
 }
