@@ -1,13 +1,43 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3'
-import { s3 } from '@/libs/s3'
-import { ApiResponseHandler } from '@/utils/apiResponse'
-import { uploadFileSchema } from '@/schema/upload'
 import { prisma } from '@/libs/prisma'
+import { s3 } from '@/libs/s3'
+import { uploadFileSchema } from '@/schema/upload'
+import { ApiResponseHandler } from '@/utils/apiResponse'
+import { PaginationHelper } from '@/utils/pagination'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
+import { NextRequest } from 'next/server'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const all = await prisma.media.findMany({ orderBy: { uploadedAt: 'desc' } })
-    return ApiResponseHandler.success(all)
+    const { page, limit, skip } = PaginationHelper.extractParams(request)
+
+    const validationError = PaginationHelper.validateParams(page, limit)
+
+    if (validationError) {
+      return ApiResponseHandler.error(validationError, 400)
+    }
+
+    const [data, total] = await prisma.$transaction([
+      prisma.media.findMany({
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          url: true,
+          fileName: true,
+        },
+        orderBy: { uploadedAt: 'desc' },
+      }),
+      prisma.author.count(),
+    ])
+
+    const meta = PaginationHelper.createMeta(total, page, limit)
+
+    const response = {
+      data,
+      meta,
+    }
+
+    return ApiResponseHandler.success(response)
   } catch (error) {
     return ApiResponseHandler.internalError('Internal Server Error', error)
   }

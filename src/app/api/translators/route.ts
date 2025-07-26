@@ -1,18 +1,49 @@
 import { createTranslatorSchema } from '@/features/translators/schema'
 import { adminOnly, getCurrentUser } from '@/libs/auth'
 import { prisma } from '@/libs/prisma'
+import { SearchConfig } from '@/types/api'
 import { ApiResponseHandler } from '@/utils/apiResponse'
+import { PaginationHelper } from '@/utils/pagination'
 import { NextRequest } from 'next/server'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const translators = await prisma.translator.findMany({
-      orderBy: {
-        lastName: 'desc',
-      },
-    })
+    const { page, limit, skip, search, filters } = PaginationHelper.extractParams(request)
 
-    return ApiResponseHandler.success(translators)
+    const validationError = PaginationHelper.validateParams(page, limit)
+
+    if (validationError) {
+      return ApiResponseHandler.error(validationError, 400)
+    }
+
+    const searchConfig: SearchConfig = {
+      searchFields: ['firstName', 'lastName'],
+    }
+    const where = PaginationHelper.buildWhereClause(search, filters, searchConfig)
+
+    const [data, total] = await prisma.$transaction([
+      prisma.translator.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+        orderBy: { lastName: 'desc' },
+      }),
+      prisma.translator.count({ where }),
+    ])
+
+    const meta = PaginationHelper.createMeta(total, page, limit, search, filters)
+
+    const response = {
+      data,
+      meta,
+    }
+
+    return ApiResponseHandler.success(response)
   } catch (error) {
     return ApiResponseHandler.internalError(undefined, error)
   }

@@ -1,26 +1,59 @@
 import { createAuthorSchema } from '@/features/authors/schema'
 import { adminOnly, getCurrentUser } from '@/libs/auth'
 import { prisma } from '@/libs/prisma'
+import { SearchConfig } from '@/types/api'
 import { ApiResponseHandler } from '@/utils/apiResponse'
+import { PaginationHelper } from '@/utils/pagination'
 import { NextRequest } from 'next/server'
 
-export async function GET() {
-  const authors = await prisma.author.findMany({
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      photo: {
+export async function GET(request: NextRequest) {
+  try {
+    const { page, limit, skip, search, filters } = PaginationHelper.extractParams(request)
+
+    const validationError = PaginationHelper.validateParams(page, limit)
+
+    if (validationError) {
+      return ApiResponseHandler.error(validationError, 400)
+    }
+
+    const searchConfig: SearchConfig = {
+      searchFields: ['firstName', 'lastName'],
+    }
+
+    const where = PaginationHelper.buildWhereClause(search, filters, searchConfig)
+
+    const [data, total] = await prisma.$transaction([
+      prisma.author.findMany({
+        where,
+        skip,
+        take: limit,
         select: {
           id: true,
-          url: true,
+          firstName: true,
+          lastName: true,
+          photo: {
+            select: {
+              id: true,
+              url: true,
+            },
+          },
         },
-      },
-    },
-    orderBy: { lastName: 'desc' },
-  })
+        orderBy: { lastName: 'desc' },
+      }),
+      prisma.author.count({ where }),
+    ])
 
-  return ApiResponseHandler.success(authors)
+    const meta = PaginationHelper.createMeta(total, page, limit, search, filters)
+
+    const response = {
+      data,
+      meta,
+    }
+
+    return ApiResponseHandler.success(response)
+  } catch (error) {
+    return ApiResponseHandler.internalError(undefined, error)
+  }
 }
 
 export async function POST(request: NextRequest) {
