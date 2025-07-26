@@ -4,6 +4,15 @@ import { ApiResponseHandler } from '@/utils/apiResponse'
 import { uploadFileSchema } from '@/schema/upload'
 import { prisma } from '@/libs/prisma'
 
+export async function GET() {
+  try {
+    const all = await prisma.media.findMany({ orderBy: { uploadedAt: 'desc' } })
+    return ApiResponseHandler.success(all)
+  } catch (error) {
+    return ApiResponseHandler.internalError('Internal Server Error', error)
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData()
@@ -38,15 +47,6 @@ export async function POST(req: Request) {
     })
 
     return ApiResponseHandler.success(media)
-  } catch (error) {
-    return ApiResponseHandler.internalError('Internal Server Error', error)
-  }
-}
-
-export async function GET() {
-  try {
-    const all = await prisma.media.findMany({ orderBy: { uploadedAt: 'desc' } })
-    return ApiResponseHandler.success(all)
   } catch (error) {
     return ApiResponseHandler.internalError('Internal Server Error', error)
   }

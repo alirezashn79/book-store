@@ -5,7 +5,7 @@ import { Params } from '@/types/api'
 import { ApiResponseHandler } from '@/utils/apiResponse'
 import { NextRequest } from 'next/server'
 
-export async function GET(_: Request, { params }: Params) {
+export async function GET(request: Request, { params }: Params) {
   try {
     const { id } = await params
     const author = await prisma.author.findUnique({
