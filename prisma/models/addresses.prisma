@@ -2,7 +2,7 @@ model Address {
     id         Int     @id @default(autoincrement())
     user       User    @relation(fields: [userId], references: [id])
     userId     Int
-    country    String
+    country    String? @default("Iran")
     state      String
     city       String
     street     String
