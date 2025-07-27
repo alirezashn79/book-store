@@ -7,6 +7,9 @@ model Address {
     city       String
     street     String
     postalCode String
+    longitude  Float?
+    latitude   Float?
     isDefault  Boolean @default(false)
-    type       String? // e.g. "BILLING" or "SHIPPING"
+    orders     Order[] @relation("AddressOrders")
+    type       String?
 }

@@ -6,6 +6,8 @@ model Order {
     totalAmount Float
     items       OrderItem[]
     transaction Transaction?
+    address     Address?     @relation("AddressOrders", fields: [addressId], references: [id])
+    addressId   Int?
     createdAt   DateTime     @default(now())
     updatedAt   DateTime     @updatedAt
 }
