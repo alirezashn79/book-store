@@ -1,0 +1,13 @@
+model CartItem {
+    id     Int  @id @default(autoincrement())
+    cart   Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+    cartId Int
+    book   Book @relation(fields: [bookId], references: [id])
+    bookId Int
+
+    quantity Int   @default(1) // تعداد کتاب
+    price    Float // قیمت واحد کتاب در زمان افزودن به سبد
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt()
+}

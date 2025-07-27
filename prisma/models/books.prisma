@@ -18,6 +18,7 @@ model Book {
     translators     BookTranslator[]
     orderItems      OrderItem[]
     reviews         Review[]
+    CartItem        CartItem[]
     createdAt       DateTime         @default(now())
     updatedAt       DateTime         @updatedAt
 }
