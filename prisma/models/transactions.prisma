@@ -1,12 +1,14 @@
 model Transaction {
     id              Int               @id @default(autoincrement())
     order           Order             @relation(fields: [orderId], references: [id])
-    orderId         Int               @unique
+    orderId         Int
     transactionDate DateTime          @default(now())
     amount          Float
     method          PaymentMethod     @default(DIRECT_PAY)
     status          TransactionStatus @default(PENDING)
-    reference       String? // شماره پیگیری یا Reference Bank
+    User            User              @relation(fields: [userId], references: [id])
+    userId          Int
+    reference       String?
 }
 
 enum PaymentMethod {
