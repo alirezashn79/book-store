@@ -1,4 +1,4 @@
-import { translatorUpdateSchema } from '@/features/translators/schema'
+import { publisherUpdateSchema } from '@/features/publishers/schema'
 import { adminOnly, getCurrentUser } from '@/libs/auth'
 import { prisma } from '@/libs/prisma'
 import { Params } from '@/types/api'
@@ -9,29 +9,23 @@ export async function GET(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params
 
-    const translator = await prisma.translator.findUnique({
-      where: {
-        id: Number(id),
-      },
+    const publisher = await prisma.publisher.findUnique({
+      where: { id: Number(id) },
       include: {
-        bookLinks: {
+        books: {
           select: {
-            book: {
-              select: {
-                id: true,
-                title: true,
-              },
-            },
+            id: true,
+            title: true,
           },
         },
       },
     })
 
-    if (!translator) {
+    if (!publisher) {
       return ApiResponseHandler.notFound()
     }
 
-    return ApiResponseHandler.success(translator)
+    return ApiResponseHandler.success(publisher)
   } catch (error) {
     return ApiResponseHandler.internalError(undefined, error)
   }
@@ -42,22 +36,35 @@ export async function PUT(request: NextRequest, { params }: Params) {
     const user = await getCurrentUser(request)
     const authResponse = adminOnly(user)
     if (authResponse) return authResponse
+
     const { id } = await params
 
+    const publisher = await prisma.publisher.findUnique({
+      where: { id: Number(id) },
+      select: {
+        id: true,
+      },
+    })
+
+    if (!publisher) {
+      return ApiResponseHandler.notFound()
+    }
+
     const body = await request.json()
-    const validationResult = translatorUpdateSchema.safeParse(body)
+
+    const validationResult = publisherUpdateSchema.safeParse(body)
 
     if (!validationResult.success) {
       return ApiResponseHandler.validationError(validationResult.error._zod.def)
     }
-    const data = validationResult.data
 
-    const updated = await prisma.translator.update({
-      where: { id: Number(id) },
+    const data = validationResult.data
+    const updated = await prisma.publisher.update({
+      where: { id: publisher.id },
       data,
     })
 
-    return ApiResponseHandler.success(updated, 'منرجم با موفقیت بروزرسانی شد')
+    return ApiResponseHandler.success(updated, 'ناشر با موفقیت بروزرسانی شد')
   } catch (error) {
     return ApiResponseHandler.internalError(undefined, error)
   }
@@ -68,23 +75,25 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     const user = await getCurrentUser(request)
     const authResponse = adminOnly(user)
     if (authResponse) return authResponse
+
     const { id } = await params
 
-    const translator = await prisma.translator.findUnique({
-      where: {
-        id: Number(id),
+    const publisher = await prisma.publisher.findUnique({
+      where: { id: Number(id) },
+      select: {
+        id: true,
       },
-      select: { id: true },
     })
 
-    if (!translator) {
+    if (!publisher) {
       return ApiResponseHandler.notFound()
     }
 
-    const deleted = await prisma.translator.delete({
-      where: { id: translator.id },
+    const deleted = await prisma.publisher.delete({
+      where: { id: publisher.id },
     })
-    return ApiResponseHandler.success(deleted, 'مترجم با موفقیت حذف شد')
+
+    return ApiResponseHandler.success(deleted, 'ناشر با موفقیت حذف شد')
   } catch (error) {
     return ApiResponseHandler.internalError(undefined, error)
   }
