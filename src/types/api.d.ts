@@ -43,7 +43,7 @@ export interface PaginationParams {
 }
 
 export interface SearchConfig {
-  searchFields: string[] // فیلدهایی که در آن‌ها جستجو می‌شود
+  searchFields?: string[] // فیلدهایی که در آن‌ها جستجو می‌شود
   filterFields?: string[] // فیلدهای قابل فیلتر
 }
 

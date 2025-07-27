@@ -2,12 +2,10 @@ model Cart {
     id        Int        @id @default(autoincrement())
     user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    Int
-    status    CartStatus @default(OPEN) // وضعیت سبد: باز، نهایی‌شده، لغو شده
+    status    CartStatus @default(OPEN)
     createdAt DateTime   @default(now())
     updatedAt DateTime   @updatedAt()
-
-    // آیتم‌های داخل این سبد
-    items CartItem[]
+    items     CartItem[]
 }
 
 enum CartStatus {

@@ -2,7 +2,7 @@ model Book {
     id              Int              @id @default(autoincrement())
     title           String
     description     String?
-    isbn            String           @unique
+    isbn            String?          @unique
     publicationDate DateTime
     price           Float
     stock           Int              @default(0) // تعداد موجودی برای نسخه فیزیکی
