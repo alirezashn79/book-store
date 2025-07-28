@@ -1,11 +1,18 @@
+enum ReviewStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
+
 model Review {
-    id        Int      @id @default(autoincrement())
-    user      User     @relation(fields: [userId], references: [id])
+    id        Int          @id @default(autoincrement())
+    user      User         @relation(fields: [userId], references: [id])
     userId    Int
-    book      Book     @relation(fields: [bookId], references: [id])
+    book      Book         @relation(fields: [bookId], references: [id])
     bookId    Int
-    rating    Int      @default(5) // مثلاً از 1 تا 5
+    rating    Int          @default(5)
     comment   String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    status    ReviewStatus @default(PENDING)
+    createdAt DateTime     @default(now())
+    updatedAt DateTime     @updatedAt
 }
