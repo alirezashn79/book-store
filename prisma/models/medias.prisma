@@ -5,5 +5,7 @@ model Media {
     mimeType   String
     size       Int
     uploadedAt DateTime @default(now())
+    Book       Book?    @relation(fields: [bookId], references: [id])
+    bookId     Int?
     Author     Author[]
 }
