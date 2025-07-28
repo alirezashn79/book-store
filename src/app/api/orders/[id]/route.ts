@@ -44,6 +44,16 @@ export async function GET(request: NextRequest, { params }: Params) {
             },
           },
         },
+        transactions: {
+          select: {
+            id: true,
+            transactionDate: true,
+            amount: true,
+            method: true,
+            status: true,
+            reference: true,
+          },
+        },
       },
     })
 
