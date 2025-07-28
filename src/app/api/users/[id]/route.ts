@@ -115,13 +115,16 @@ export async function DELETE(request: NextRequest, { params }: Params) {
       return ApiResponseHandler.notFound('کاربری پیدا نشد')
     }
 
-    const deleted = await prisma.$transaction([
-      prisma.user.delete({ where: { id: userDB.id } }),
-      prisma.order.deleteMany({ where: { userId: userDB.id } }),
-      prisma.review.deleteMany({ where: { userId: userDB.id } }),
-    ])
+    await prisma.$transaction(async (tx) => {
+      await tx.order.deleteMany({ where: { userId: userDB.id } })
+      await tx.review.deleteMany({ where: { userId: userDB.id } })
+      await tx.transaction.deleteMany({ where: { userId: userDB.id } })
+      await tx.cart.deleteMany({ where: { userId: userDB.id } })
+      await tx.address.deleteMany({ where: { userId: userDB.id } })
+      await tx.user.delete({ where: { id: userDB.id } })
+    })
 
-    return ApiResponseHandler.success(deleted, 'کاربر با موفقیت حذف شد')
+    return ApiResponseHandler.success(undefined, 'کاربر با موفقیت حذف شد')
   } catch (error) {
     return ApiResponseHandler.internalError(undefined, error)
   }
