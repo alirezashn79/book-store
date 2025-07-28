@@ -13,11 +13,35 @@ export async function GET(request: NextRequest, { params }: Params) {
     const book = await prisma.book.findUnique({
       where: { id: Number(id) },
       include: {
-        categories: true,
-        authors: true,
-        translators: true,
-        images: true,
-        reviews: true,
+        authors: {
+          select: {
+            author: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        translators: {
+          select: {
+            translator: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        images: {
+          select: {
+            id: true,
+            url: true,
+            fileName: true,
+          },
+        },
       },
     })
 
@@ -25,7 +49,15 @@ export async function GET(request: NextRequest, { params }: Params) {
       return ApiResponseHandler.notFound()
     }
 
-    return ApiResponseHandler.success(book)
+    const authors = book.authors.map((rel) => rel.author)
+    const translators = book.translators.map((rel) => rel.translator)
+    const response = {
+      ...book,
+      authors,
+      translators,
+    }
+
+    return ApiResponseHandler.success(response)
   } catch (error) {
     return ApiResponseHandler.internalError(undefined, error)
   }
