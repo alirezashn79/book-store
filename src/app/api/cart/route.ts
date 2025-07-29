@@ -12,27 +12,41 @@ export async function GET(request: NextRequest) {
       return ApiResponseHandler.unauthorized()
     }
 
-    const cart = await prisma.cart.findMany({
+    const cart = await prisma.cart.findUnique({
       where: { userId: user.id },
-      select: {
-        id: true,
+      include: {
         items: {
           select: {
             id: true,
-            book: {
-              select: {
-                id: true,
-                title: true,
-              },
-            },
             quantity: true,
             price: true,
+            book: {
+              select: { id: true, title: true },
+            },
           },
         },
       },
     })
 
-    return ApiResponseHandler.success(cart)
+    if (!cart) {
+      return ApiResponseHandler.success({
+        cartId: null,
+        items: [],
+        totalQuantity: 0,
+        totalPrice: 0,
+      })
+    }
+
+    const totalQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0)
+
+    const totalPrice = cart.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+
+    return ApiResponseHandler.success({
+      cartId: cart.id,
+      items: cart.items,
+      totalQuantity,
+      totalPrice,
+    })
   } catch (error) {
     return ApiResponseHandler.internalError(undefined, error)
   }
