@@ -4,13 +4,13 @@ import { omit } from '@/libs/omit'
 import { prisma } from '@/libs/prisma'
 import { ApiResponseHandler } from '@/utils/apiResponse'
 import JWT from 'jsonwebtoken'
+import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const validationResult = loginSchema.safeParse(body)
-
     if (!validationResult.success) {
       return ApiResponseHandler.validationError(validationResult.error._zod.def)
     }
@@ -56,8 +56,18 @@ export async function POST(request: NextRequest) {
       }
     )
 
+    const cookieStore = await cookies()
+    cookieStore.set({
+      name: 'accessToken',
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
+
     return ApiResponseHandler.success({
-      token,
       user: userWithoutPassword,
     })
   } catch (error) {

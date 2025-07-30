@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@/context/ThemeContext'
 import './globals.css'
 import localFont from 'next/font/local'
+import ReactQueryProvider from '@/providers/reactQueryProvider'
 
 const dana = localFont({
   src: [
@@ -54,7 +55,9 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" className={`${dana.variable} ${morabba.variable}`}>
       <body className={`${dana.className} dark:bg-gray-900`}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <ReactQueryProvider>{children}</ReactQueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

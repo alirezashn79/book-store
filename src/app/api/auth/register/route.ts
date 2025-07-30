@@ -3,7 +3,9 @@ import { hashPass } from '@/libs/bcryptjs'
 import { omit } from '@/libs/omit'
 import { prisma } from '@/libs/prisma'
 import { ApiResponseHandler } from '@/utils/apiResponse'
+import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
+import JWT from 'jsonwebtoken'
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,6 +36,32 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
       },
+    })
+
+    const token = JWT.sign(
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+      },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: '7d',
+      }
+    )
+
+    const cookieStore = await cookies()
+
+    cookieStore.set({
+      name: 'accessToken',
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
     })
 
     const userWithoutPassword = omit(user, ['password'])
