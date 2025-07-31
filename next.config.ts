@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
     })
     return config
   },
+  images: {
+    domains: [
+      // لیست دامنه‌های مجاز
+      'book-store.storage.c2.liara.space',
+    ],
+  },
 }
 
 export default nextConfig

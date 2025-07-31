@@ -1,24 +1,22 @@
-import { ApiErrorResponse, TokenPayload } from '@/types/api'
-import { ApiResponseHandler } from '@/utils/apiResponse'
-import JWT from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
+import JWT from 'jsonwebtoken'
 import { prisma } from './prisma'
+import { ApiResponseHandler } from '@/utils/apiResponse'
+import { ApiErrorResponse, TokenPayload } from '@/types/api'
 
 const JWT_SECRET = process.env.JWT_SECRET ?? ''
 
 export async function getCurrentUser(request: NextRequest): Promise<TokenPayload | null> {
-  const authHeader = request.headers.get('Authorization')
-
-  if (!authHeader?.startsWith('Bearer')) return null
-
-  const token = authHeader.substring(7)
+  const token = request.cookies.get('accessToken')?.value
+  if (!token) {
+    return null
+  }
 
   try {
     const payload = JWT.verify(token, JWT_SECRET) as TokenPayload
+
     const user = await prisma.user.findUnique({
-      where: {
-        id: payload.id,
-      },
+      where: { id: payload.id },
       select: {
         id: true,
         name: true,
@@ -28,11 +26,13 @@ export async function getCurrentUser(request: NextRequest): Promise<TokenPayload
       },
     })
 
-    if (!user) return null
+    if (!user) {
+      return null
+    }
 
     return user
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    console.error('getCurrentUser error:', err)
     return null
   }
 }

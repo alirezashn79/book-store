@@ -1,9 +1,12 @@
 export const endpoints = {
   auth: {
-    login: '/auth/login',
-    register: '/auth/register',
+    login: 'auth/login',
+    register: 'auth/register',
   },
-  media: '/media',
+  media: 'media',
   authors: '/authors',
   translators: '/translators',
+  categories: {
+    default: 'categories',
+  },
 }

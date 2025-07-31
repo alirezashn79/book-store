@@ -177,12 +177,71 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
+  body::-webkit-scrollbar {
+    display: none;
+  }
   button:not(:disabled),
   [role='button']:not(:disabled) {
     cursor: pointer;
   }
   body {
     @apply relative z-1 bg-gray-50 dark:text-white;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-morabba;
+  }
+  .uppy-Root {
+    @apply !font-dana;
+  }
+
+  .uppy-Dashboard-AddFiles-info {
+    display: none !important;
+  }
+  .uppy-Dashboard-inner {
+    height: 100% !important;
+    width: auto !important;
+    /* min-height: 100px !important; */
+  }
+  .uppy-Dashboard-AddFiles-title {
+    font-size: 14px !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .uppy-Container,
+  .uppy-Root,
+  .uppy-Dashboard {
+    height: 100% !important;
+    overflow: hidden !important;
+    scrollbar-width: 0 !important;
+    &::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+  [data-uppy-theme='dark'] .uppy-Dashboard-inner {
+    @apply !border-gray-700 !bg-gray-800;
+  }
+
+  [data-uppy-theme='dark'] .uppy-DashboardContent-bar {
+    @apply !border-gray-700 !bg-gray-800;
+  }
+
+  [data-uppy-theme='dark'] .uppy-StatusBar {
+    @apply !border-gray-700 !bg-gray-800;
+  }
+
+  .uppy-Dashboard-files div[role='presentation'] {
+    height: auto !important;
+    max-height: 100% !important;
+    overflow: scroll !important;
+    scrollbar-width: 0 !important;
   }
 }
 

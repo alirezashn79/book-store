@@ -8,3 +8,5 @@ export const loginSchema = z.object({
   ]),
   password: z.string().min(6, { message: 'رمز عبور باید حداقل ۶ کاراکتر باشد.' }),
 })
+
+export type LoginTypeInput = z.infer<typeof loginSchema>

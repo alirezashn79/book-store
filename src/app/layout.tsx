@@ -2,7 +2,7 @@ import { ThemeProvider } from '@/context/ThemeContext'
 import './globals.css'
 import localFont from 'next/font/local'
 import ReactQueryProvider from '@/providers/reactQueryProvider'
-
+import { Toaster } from 'react-hot-toast'
 const dana = localFont({
   src: [
     {
@@ -56,7 +56,10 @@ export default function RootLayout({
     <html lang="fa" dir="rtl" className={`${dana.variable} ${morabba.variable}`}>
       <body className={`${dana.className} dark:bg-gray-900`}>
         <ThemeProvider>
-          <ReactQueryProvider>{children}</ReactQueryProvider>
+          <ReactQueryProvider>
+            {children}
+            <Toaster />
+          </ReactQueryProvider>
         </ThemeProvider>
       </body>
     </html>

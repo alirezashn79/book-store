@@ -2,7 +2,6 @@
 import ComponentCard from '@/components/common/ComponentCard'
 import CreatableMultiSelectComponent from '@/components/form/CreatableMultiSelect'
 import CreatableSelectComponent from '@/components/form/CreatableSelect'
-import DropzoneComponent from '@/components/form/form-elements/DropZone'
 import FileInput from '@/components/form/input/FileInput'
 import Input from '@/components/form/input/InputField'
 import TextArea from '@/components/form/input/TextArea'
@@ -11,10 +10,14 @@ import { OptionType } from '@/components/form/Select'
 import Switch from '@/components/form/switch/Switch'
 import Button from '@/components/ui/button/Button'
 import { bookSchema, IBookAdd } from '@/features/products/schema'
+import { createUppy } from '@/libs/createUppy'
 import { joiResolver } from '@hookform/resolvers/joi'
+import Dashboard from '@uppy/react/lib/Dashboard'
 import { useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import { categoryOptions, topicOptions } from '../data'
+import { useTheme } from '@/context/ThemeContext'
+import useGetCategories from '@/features/categories/hooks/useGetCategories'
 
 const fetchCategories = (): Promise<OptionType[]> => {
   return new Promise((resolve) => {
@@ -54,6 +57,9 @@ const createTopic = async (label: string): Promise<OptionType> => {
 
 export default function CreateProductForm() {
   const [isShowOptionalFields, setIsShowOptionalFields] = useState(false)
+  const [uppy] = useState(createUppy)
+  const { theme } = useTheme()
+  const { data: categories } = useGetCategories({ responseType: true })
 
   const {
     register,
@@ -91,7 +97,7 @@ export default function CreateProductForm() {
             <Controller
               control={control}
               name="title"
-              render={({ field }) => <Input {...field} error={!!errors.title?.message} />}
+              render={({ field }) => <Input {...field} error={errors.title?.message} />}
             />
           </div>
 
@@ -100,7 +106,7 @@ export default function CreateProductForm() {
             <Controller
               control={control}
               name="author"
-              render={({ field }) => <Input {...field} error={!!errors.author?.message} />}
+              render={({ field }) => <Input {...field} error={errors.author?.message} />}
             />
           </div>
           <div>
@@ -109,7 +115,7 @@ export default function CreateProductForm() {
             <Controller
               control={control}
               name="price"
-              render={({ field }) => <Input {...field} error={!!errors.price?.message} />}
+              render={({ field }) => <Input {...field} error={errors.price?.message} />}
             />
           </div>
           <div>
@@ -117,7 +123,7 @@ export default function CreateProductForm() {
             <Controller
               control={control}
               name="stock"
-              render={({ field }) => <Input {...field} error={!!errors.price?.message} />}
+              render={({ field }) => <Input {...field} error={errors.price?.message} />}
             />
           </div>
           <div>
@@ -126,7 +132,7 @@ export default function CreateProductForm() {
           </div>
           <div>
             <Label>دسته بندی</Label>
-            {/* <Input {...register('categoryId')} error={!!errors.categoryId?.message} /> */}
+            {/* <Input {...register('categoryId')} error={errors.categoryId?.message} /> */}
             <Controller
               control={control}
               name="categoryId"
@@ -163,28 +169,28 @@ export default function CreateProductForm() {
             <>
               <div>
                 <Label optional>نام مترجم</Label>
-                <Input {...register('translator')} error={!!errors.translator?.message} />
+                <Input {...register('translator')} error={errors.translator?.message} />
               </div>
               <div>
                 <Label optional>ناشر</Label>
-                <Input {...register('publisherId')} error={!!errors.publisherId?.message} />
+                <Input {...register('publisherId')} error={errors.publisherId?.message} />
               </div>
               <div>
                 <Label optional>سال انتشار</Label>
-                <Input {...register('publishYear')} error={!!errors.publishYear?.message} />
+                <Input {...register('publishYear')} error={errors.publishYear?.message} />
               </div>
               <div>
                 <Label optional>نوبت چاپ</Label>
-                <Input {...register('printEdition')} error={!!errors.printEdition?.message} />
+                <Input {...register('printEdition')} error={errors.printEdition?.message} />
               </div>
               <div>
                 <Label optional>شماره استاندارد بین المللی</Label>
-                <Input {...register('isbn')} error={!!errors.isbn?.message} />
+                <Input {...register('isbn')} error={errors.isbn?.message} />
               </div>
 
               <div>
                 <Label optional>زبان</Label>
-                <Input {...register('language')} error={!!errors.language?.message} />
+                <Input {...register('language')} error={errors.language?.message} />
               </div>
               <div>
                 <Label optional>تعداد صفحات</Label>
@@ -193,32 +199,28 @@ export default function CreateProductForm() {
                   {...register('pageCount', {
                     valueAsNumber: true,
                   })}
-                  error={!!errors.pageCount?.message}
+                  error={errors.pageCount?.message}
                 />
               </div>
               <div>
                 <Label optional>توع قظع</Label>
-                <Input {...register('format')} error={!!errors.format?.message} />
+                <Input {...register('format')} error={errors.format?.message} />
               </div>
               <div>
                 <Label optional>جنس کاغذ</Label>
-                <Input {...register('paperType')} error={!!errors.paperType?.message} />
+                <Input {...register('paperType')} error={errors.paperType?.message} />
               </div>
               <div>
                 <Label optional>نوع جلد</Label>
-                <Input {...register('coverType')} error={!!errors.coverType?.message} />
+                <Input {...register('coverType')} error={errors.coverType?.message} />
               </div>
               <div>
                 <Label optional>ابعاد</Label>
-                <Input {...register('dimensions')} error={!!errors.dimensions?.message} />
+                <Input {...register('dimensions')} error={errors.dimensions?.message} />
               </div>
               <div className="md:col-span-2 lg:col-span-3">
                 <Label optional>خلاصه</Label>
-                <TextArea
-                  {...register('summary')}
-                  error={!!errors.summary?.message}
-                  placeholder=""
-                />
+                <TextArea {...register('summary')} error={errors.summary?.message} placeholder="" />
               </div>
             </>
           )}
@@ -246,7 +248,8 @@ export default function CreateProductForm() {
       </form>
       <div>
         <Label optional>عکس ها</Label>
-        <DropzoneComponent />
+        {/* <DropzoneComponent /> */}
+        <Dashboard className="!w-full" theme={theme} uppy={uppy} />
       </div>
     </ComponentCard>
   )

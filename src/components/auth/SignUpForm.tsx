@@ -1,37 +1,57 @@
 'use client'
-import Checkbox from '@/components/form/input/Checkbox'
 import Input from '@/components/form/input/InputField'
 import Label from '@/components/form/Label'
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '@/icons'
+import useRegisterForm from '@/features/auth/hooks/useRegisterForm'
+import { registerFormSchema, RegisterFormValues } from '@/features/auth/schema/register'
+import { EyeCloseIcon, EyeIcon } from '@/icons'
+import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false)
-  const [isChecked, setIsChecked] = useState(false)
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      fname: '',
+      lname: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: '',
+    },
+  })
+  const { mutateAsync, isPending } = useRegisterForm()
+
+  const onSubmit: SubmitHandler<RegisterFormValues> = async (values) => {
+    const payload = {
+      name: `${values.fname} ${values.lname}`,
+      email: values.email,
+      ...(values.phone && { phone: values.phone }),
+      password: values.password,
+    }
+    await mutateAsync(payload)
+  }
+
   return (
     <div className="no-scrollbar flex w-full flex-1 flex-col overflow-y-auto lg:w-1/2">
-      <div className="mx-auto mb-5 w-full max-w-md sm:pt-10">
-        <Link
-          href="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-        >
-          <ChevronLeftIcon />
-          Back to dashboard
-        </Link>
-      </div>
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         <div>
           <div className="mb-5 sm:mb-8">
             <h1 className="text-title-sm sm:text-title-md mb-2 font-semibold text-gray-800 dark:text-white/90">
-              Sign Up
+              ثبت نام
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign up!
+              برای ثبت نام نام و ایمیل و رمزعبور انتخابی خود را وارد کنید
             </p>
           </div>
           <div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
+            {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
               <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                 <svg
                   width="20"
@@ -72,8 +92,8 @@ export default function SignUpForm() {
                 </svg>
                 Sign up with X
               </button>
-            </div>
-            <div className="relative py-3 sm:py-5">
+            </div> */}
+            {/* <div className="relative py-3 sm:py-5">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
               </div>
@@ -82,47 +102,126 @@ export default function SignUpForm() {
                   Or
                 </span>
               </div>
-            </div>
-            <form>
+            </div> */}
+            <form onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-5">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   {/* <!-- First Name --> */}
                   <div className="sm:col-span-1">
-                    <Label>
-                      First Name<span className="text-error-500">*</span>
-                    </Label>
-                    <Input
-                      type="text"
-                      id="fname"
+                    <Label>نام</Label>
+                    <Controller
+                      disabled={isPending}
+                      control={control}
                       name="fname"
-                      placeholder="Enter your first name"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          type="text"
+                          placeholder="نام را وارد کنید"
+                          error={errors.fname?.message}
+                        />
+                      )}
                     />
                   </div>
                   {/* <!-- Last Name --> */}
                   <div className="sm:col-span-1">
-                    <Label>
-                      Last Name<span className="text-error-500">*</span>
-                    </Label>
-                    <Input type="text" id="lname" name="lname" placeholder="Enter your last name" />
+                    <Label>نام خانوادگی</Label>
+                    <Controller
+                      disabled={isPending}
+                      control={control}
+                      name="lname"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          type="text"
+                          placeholder="نام خانوادگی را وارد کنید"
+                          error={errors.lname?.message}
+                        />
+                      )}
+                    />
                   </div>
                 </div>
                 {/* <!-- Email --> */}
                 <div>
-                  <Label>
-                    Email<span className="text-error-500">*</span>
-                  </Label>
-                  <Input type="email" id="email" name="email" placeholder="Enter your email" />
+                  <Label>ایمیل</Label>
+                  <Controller
+                    disabled={isPending}
+                    control={control}
+                    name="email"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="ایمیل را وارد کنید"
+                        error={errors.email?.message}
+                      />
+                    )}
+                  />
+                </div>
+                <div>
+                  <Label optional>شماره موبایل</Label>
+                  <Controller
+                    disabled={isPending}
+                    control={control}
+                    name="phone"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="شماره موبایل را وارد کنید"
+                        error={errors.phone?.message}
+                      />
+                    )}
+                  />
                 </div>
                 {/* <!-- Password --> */}
                 <div>
-                  <Label>
-                    Password<span className="text-error-500">*</span>
-                  </Label>
+                  <Label>رمزعبور</Label>
                   <div className="relative">
-                    <Input
-                      placeholder="Enter your password"
-                      type={showPassword ? 'text' : 'password'}
+                    <Controller
+                      disabled={isPending}
+                      control={control}
+                      name="password"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          placeholder="رمزعبور انتخابی خود را وارد کنید"
+                          type={showPassword ? 'text' : 'password'}
+                          error={errors.password?.message}
+                        />
+                      )}
                     />
+
+                    <span
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute end-4 top-1/2 z-30 -translate-y-1/2 cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+                      ) : (
+                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <Label> تکرار رمزعبور</Label>
+                  <div className="relative">
+                    <Controller
+                      disabled={isPending}
+                      control={control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          placeholder="رمزعبور انتخابی خود را تکرار کنید"
+                          type={showPassword ? 'text' : 'password'}
+                          error={errors.confirmPassword?.message}
+                        />
+                      )}
+                    />
+
                     <span
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute end-4 top-1/2 z-30 -translate-y-1/2 cursor-pointer"
@@ -136,18 +235,21 @@ export default function SignUpForm() {
                   </div>
                 </div>
                 {/* <!-- Checkbox --> */}
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                   <Checkbox className="h-5 w-5" checked={isChecked} onChange={setIsChecked} />
                   <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
                     By creating an account means you agree to the{' '}
                     <span className="text-gray-800 dark:text-white/90">Terms and Conditions,</span>{' '}
                     and our <span className="text-gray-800 dark:text-white">Privacy Policy</span>
                   </p>
-                </div>
+                </div> */}
                 {/* <!-- Button --> */}
                 <div>
-                  <button className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition">
-                    Sign Up
+                  <button
+                    disabled={isPending}
+                    className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition"
+                  >
+                    ثبت نام
                   </button>
                 </div>
               </div>
@@ -155,12 +257,12 @@ export default function SignUpForm() {
 
             <div className="mt-5">
               <p className="text-center text-sm font-normal text-gray-700 sm:text-start dark:text-gray-400">
-                Already have an account?
+                حساب دارم؟
                 <Link
-                  href="/signin"
+                  href="/dashboard/signin"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
-                  Sign In
+                  ورود
                 </Link>
               </p>
             </div>

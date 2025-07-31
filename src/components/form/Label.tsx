@@ -21,7 +21,11 @@ const Label: FC<LabelProps> = ({ htmlFor, children, className, optional = false 
       )}
     >
       {children}
-      {!optional && <span className="text-error-500 px-1">*</span>}
+      {optional ? (
+        <span className="px-1 text-xs text-gray-400 dark:text-gray-600">(اختیاری)</span>
+      ) : (
+        <span className="text-error-500 px-1">*</span>
+      )}
     </label>
   )
 }

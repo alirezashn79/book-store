@@ -1,11 +1,12 @@
 model Media {
-    id         String   @id @default(cuid())
-    url        String
-    fileName   String
-    mimeType   String
-    size       Int
-    uploadedAt DateTime @default(now())
-    Book       Book?    @relation(fields: [bookId], references: [id])
-    bookId     Int?
-    Author     Author[]
+    id          String   @id @default(cuid())
+    url         String
+    fileName    String
+    mimeType    String
+    size        Int
+    uploadedAt  DateTime @default(now())
+    blurDataURL String?
+    Book        Book?    @relation(fields: [bookId], references: [id])
+    bookId      Int?
+    Author      Author[]
 }

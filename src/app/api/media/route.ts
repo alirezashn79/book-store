@@ -1,3 +1,4 @@
+import { adminOnly, getCurrentUser } from '@/libs/auth'
 import { prisma } from '@/libs/prisma'
 import { s3 } from '@/libs/s3'
 import { uploadFileSchema } from '@/schema/upload'
@@ -5,9 +6,14 @@ import { ApiResponseHandler } from '@/utils/apiResponse'
 import { PaginationHelper } from '@/utils/pagination'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { NextRequest } from 'next/server'
+import { getPlaiceholder } from 'plaiceholder'
 
 export async function GET(request: NextRequest) {
   try {
+    const user = await getCurrentUser(request)
+    const authResponse = adminOnly(user)
+    if (authResponse) return authResponse
+
     const { page, limit, skip } = PaginationHelper.extractParams(request)
 
     const validationError = PaginationHelper.validateParams(page, limit)
@@ -24,10 +30,11 @@ export async function GET(request: NextRequest) {
           id: true,
           url: true,
           fileName: true,
+          blurDataURL: true,
         },
         orderBy: { uploadedAt: 'desc' },
       }),
-      prisma.author.count(),
+      prisma.media.count(),
     ])
 
     const meta = PaginationHelper.createMeta(total, page, limit)
@@ -67,12 +74,15 @@ export async function POST(req: Request) {
     await s3.send(command)
     const url = `${process.env.LIARA_ACCESS_ENDPOINT}/${fileName}`
 
+    const { base64: blurDataURL } = await getPlaiceholder(buffer, { size: 10 })
+
     const media = await prisma.media.create({
       data: {
         url,
         fileName,
         mimeType: file.type,
         size: file.size,
+        blurDataURL,
       },
     })
 

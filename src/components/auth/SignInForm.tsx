@@ -3,36 +3,57 @@ import Checkbox from '@/components/form/input/Checkbox'
 import Input from '@/components/form/input/InputField'
 import Label from '@/components/form/Label'
 import Button from '@/components/ui/button/Button'
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '@/icons'
+import { EyeCloseIcon, EyeIcon } from '@/icons'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { loginSchema, LoginTypeInput } from '@/features/auth/schema/login'
+import useLoginForm from '@/features/auth/hooks/useLoginForm'
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false)
-  const [isChecked, setIsChecked] = useState(false)
+  const {
+    control,
+    handleSubmit,
+    resetField,
+    setFocus,
+    formState: { errors },
+  } = useForm<LoginTypeInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      identifier: '',
+      password: '',
+    },
+  })
+  const { mutateAsync, isPending } = useLoginForm()
+
+  const onSubmit: SubmitHandler<LoginTypeInput> = (values) => {
+    try {
+      mutateAsync(values, {
+        onError: () => {
+          resetField('password')
+          setFocus('password')
+        },
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <div className="flex w-full flex-1 flex-col lg:w-1/2">
-      <div className="mx-auto mb-5 w-full max-w-md sm:pt-10">
-        <Link
-          href="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-        >
-          <ChevronLeftIcon />
-          Back to dashboard
-        </Link>
-      </div>
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         <div>
           <div className="mb-5 sm:mb-8">
             <h1 className="text-title-sm sm:text-title-md mb-2 font-semibold text-gray-800 dark:text-white/90">
-              Sign In
+              ورود
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign in!
+              برای وارد شدن، ایمیل/شماره و رمزعبور خود را وارد کنید
             </p>
           </div>
           <div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
+            {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
               <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                 <svg
                   width="20"
@@ -73,8 +94,8 @@ export default function SignInForm() {
                 </svg>
                 Sign in with X
               </button>
-            </div>
-            <div className="relative py-3 sm:py-5">
+            </div> */}
+            {/* <div className="relative py-3 sm:py-5">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
               </div>
@@ -83,23 +104,40 @@ export default function SignInForm() {
                   Or
                 </span>
               </div>
-            </div>
-            <form>
+            </div> */}
+            <form onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-6">
                 <div>
-                  <Label>
-                    Email <span className="text-error-500">*</span>{' '}
-                  </Label>
-                  <Input placeholder="info@gmail.com" type="email" />
+                  <Label>ایمیل/شماره موبایل</Label>
+                  <Controller
+                    control={control}
+                    name="identifier"
+                    disabled={isPending}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        autoFocus
+                        placeholder="info@gmail.com | 09123456789"
+                        error={errors.identifier?.message}
+                      />
+                    )}
+                  />
                 </div>
                 <div>
-                  <Label>
-                    Password <span className="text-error-500">*</span>{' '}
-                  </Label>
+                  <Label>رمزعبور</Label>
                   <div className="relative">
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
+                    <Controller
+                      control={control}
+                      name="password"
+                      disabled={isPending}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="رمزعبور را وارد کنید"
+                          error={errors.password?.message}
+                        />
+                      )}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -113,23 +151,25 @@ export default function SignInForm() {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div
+                // className="xsm:flex-row xsm:items-center flex flex-col items-start justify-between gap-2"
+                >
+                  {/* <div className="flex items-center gap-3">
                     <Checkbox checked={isChecked} onChange={setIsChecked} />
                     <span className="text-theme-sm block font-normal text-gray-700 dark:text-gray-400">
-                      Keep me logged in
+                      من را لاگین نگه دار
                     </span>
-                  </div>
+                  </div> */}
                   <Link
                     href="/reset-password"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400 text-sm"
                   >
-                    Forgot password?
+                    رمزعبور را فراموش کرده اید؟
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm">
-                    Sign in
+                  <Button disabled={isPending} type="submit" className="w-full" size="sm">
+                    ورود
                   </Button>
                 </div>
               </div>
@@ -137,12 +177,12 @@ export default function SignInForm() {
 
             <div className="mt-5">
               <p className="text-center text-sm font-normal text-gray-700 sm:text-start dark:text-gray-400">
-                Don&apos;t have an account? {''}
+                حساب ندارید؟
                 <Link
-                  href="/signup"
+                  href="/dashboard/signup"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
-                  Sign Up
+                  ثبت نام
                 </Link>
               </p>
             </div>

@@ -1,13 +1,18 @@
 import Link from 'next/link'
 import React from 'react'
+import Button from '../button/Button'
 
 interface AlertProps {
   variant: 'success' | 'error' | 'warning' | 'info' // Alert type
   title: string // Title of the alert
-  message: string // Message of the alert
+  message?: string // Message of the alert
   showLink?: boolean // Whether to show the "Learn More" link
   linkHref?: string // Link URL
   linkText?: string // Link text
+  isConfirm?: boolean
+  onConfirm?: () => void | Promise<void>
+  onCancel?: () => void
+  isLoading?: boolean
 }
 
 const Alert: React.FC<AlertProps> = ({
@@ -17,6 +22,10 @@ const Alert: React.FC<AlertProps> = ({
   showLink = false,
   linkHref = '#',
   linkText = 'Learn more',
+  isConfirm = false,
+  onConfirm,
+  onCancel,
+  isLoading = false,
 }) => {
   // Tailwind classes for each variant
   const variantClasses = {
@@ -113,13 +122,14 @@ const Alert: React.FC<AlertProps> = ({
 
   return (
     <div className={`rounded-xl border p-4 ${variantClasses[variant].container}`}>
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <div className={`-mt-0.5 ${variantClasses[variant].icon}`}>{icons[variant]}</div>
-
         <div>
-          <h4 className="mb-1 text-sm font-semibold text-gray-800 dark:text-white/90">{title}</h4>
+          <h4 className="font-dana mb-1 text-sm font-semibold text-gray-800 dark:text-white/90">
+            {title}
+          </h4>
 
-          <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
+          {message && <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>}
 
           {showLink && (
             <Link
@@ -130,6 +140,27 @@ const Alert: React.FC<AlertProps> = ({
             </Link>
           )}
         </div>
+
+        {isConfirm && (
+          <div className="ms-auto flex space-x-2">
+            <Button
+              disabled={isLoading}
+              onClick={onConfirm}
+              variant="primary"
+              className="h-10 min-w-20"
+            >
+              {isLoading ? 'در حال حذف' : 'بله'}
+            </Button>
+            <Button
+              disabled={isLoading}
+              onClick={onCancel}
+              variant="outline"
+              className="h-10 min-w-20"
+            >
+              انصراف
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

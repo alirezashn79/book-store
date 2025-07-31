@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
+import { useCallback, useState } from 'react'
 import { CreatableProps } from 'react-select/creatable'
-import { ActionMeta } from 'react-select'
 const CreatableSelect = dynamic<CreatableProps<OptionType, false, never>>(
   () => import('react-select/creatable').then((mod) => mod.default),
   {
