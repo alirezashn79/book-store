@@ -4,6 +4,10 @@ import { ApiResponse, PaginatedResponse } from '@/types/api'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { MediaItem } from '../types'
 
+type UseGetMediaOptions = {
+  enabled?: boolean
+}
+
 const queryFn = async ({ pageParam = 1 }): Promise<PaginatedResponse<MediaItem>> => {
   const urlParams = new URLSearchParams()
   urlParams.append('page', String(pageParam))
@@ -17,7 +21,7 @@ const queryFn = async ({ pageParam = 1 }): Promise<PaginatedResponse<MediaItem>>
   return response.data
 }
 
-export default function useGetMedia() {
+export default function useGetMedia(options: UseGetMediaOptions = {}) {
   return useInfiniteQuery({
     queryKey: ['media'],
     initialPageParam: 1,
@@ -27,5 +31,9 @@ export default function useGetMedia() {
         return lastpage.meta.page + 1
       }
     },
+    enabled: options.enabled ?? true,
+    // اگر نمی‌خواهید به‌ازای هر mount دوباره اجرا شود
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 }

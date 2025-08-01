@@ -2,7 +2,6 @@
 import Button from '@/components/ui/button/Button'
 import SideBar from '@/features/media/components/SideBar'
 import useContextMenu from '@/hooks/useContextMenu'
-import { useUppyManager } from '@/hooks/useUppyManager'
 import { useUppyStore } from '@/stores/uppyStore'
 import { cn } from '@/utils/cn'
 import { PlayCircle } from 'lucide-react'
@@ -19,7 +18,6 @@ export default function MedisList() {
   const [isOpenSidebar, setIsOpenSidebar] = useState(false)
   const [isDelete, setIsDelete] = useState(false)
   const mediaContainer = useRef<HTMLDivElement>(null)
-  useUppyManager()
   const isUploading = useUppyStore((s) => s.isUploading)
   const {
     ref,

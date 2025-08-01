@@ -13,9 +13,9 @@ export function useUppyManager() {
 
   useEffect(() => {
     const onProgress = () => setIsUploading(true)
-    const onComplete = () => {
+    const onComplete = async () => {
       setIsUploading(false)
-      refreshMedia()
+      await refreshMedia()
     }
 
     uppy.on('upload-progress', onProgress)
