@@ -5,7 +5,7 @@ const MediaList = dynamic(() => import('@/features/media/components/mediaList'))
 export default function MediaPage() {
   return (
     <div>
-      <PageBreadcrumb pageTitle="مدیا" />
+      <PageBreadcrumb pageTitle="رسانه" />
 
       <MediaList />
     </div>

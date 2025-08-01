@@ -3,4 +3,5 @@ export interface MediaItem {
   fileName: string
   url: string
   blurDataURL?: string
+  mimeType: string
 }

@@ -1,12 +1,13 @@
 import { adminOnly, getCurrentUser } from '@/libs/auth'
 import { prisma } from '@/libs/prisma'
 import { s3 } from '@/libs/s3'
-import { uploadFileSchema } from '@/schema/upload'
+import { uploadFileSchema } from '@/features/media/schema/upload'
 import { ApiResponseHandler } from '@/utils/apiResponse'
 import { PaginationHelper } from '@/utils/pagination'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { NextRequest } from 'next/server'
 import { getPlaiceholder } from 'plaiceholder'
+import sharp from 'sharp'
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
           url: true,
           fileName: true,
           blurDataURL: true,
+          mimeType: true,
         },
         orderBy: { uploadedAt: 'desc' },
       }),
@@ -55,16 +57,29 @@ export async function POST(req: Request) {
     const formData = await req.formData()
     const rawFile = formData.get('file')
 
-    const validationResult = uploadFileSchema.safeParse({ file: rawFile })
-    if (!validationResult.success) {
-      return ApiResponseHandler.validationError(validationResult.error._zod.def)
+    const validation = uploadFileSchema.safeParse({ file: rawFile })
+    if (!validation.success) {
+      return ApiResponseHandler.validationError(validation.error._zod.def)
     }
-    const { file } = validationResult.data
+    const { file }: { file: File } = validation.data
 
-    const fileName = `${Date.now()}-${file.name}`
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
+    let width: number | null = null
+    let height: number | null = null
+    let blurDataURL: string | null = null
+
+    if (file.type.startsWith('image/')) {
+      const meta = await sharp(buffer).metadata()
+      width = meta.width ?? null
+      height = meta.height ?? null
+
+      const { base64 } = await getPlaiceholder(buffer, { size: 10 })
+      blurDataURL = base64
+    }
+
+    const fileName = `${Date.now()}-${file.name}`
     const command = new PutObjectCommand({
       Bucket: process.env.LIARA_BUCKET_NAME,
       Key: fileName,
@@ -74,20 +89,21 @@ export async function POST(req: Request) {
     await s3.send(command)
     const url = `${process.env.LIARA_ACCESS_ENDPOINT}/${fileName}`
 
-    const { base64: blurDataURL } = await getPlaiceholder(buffer, { size: 10 })
-
     const media = await prisma.media.create({
       data: {
         url,
         fileName,
         mimeType: file.type,
         size: file.size,
+        width,
+        height,
         blurDataURL,
       },
     })
 
     return ApiResponseHandler.success(media)
   } catch (error) {
+    console.error(error)
     return ApiResponseHandler.internalError('Internal Server Error', error)
   }
 }

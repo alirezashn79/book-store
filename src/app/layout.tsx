@@ -58,7 +58,11 @@ export default function RootLayout({
         <ThemeProvider>
           <ReactQueryProvider>
             {children}
-            <Toaster />
+            <Toaster
+              containerStyle={{
+                zIndex: 999999999999999,
+              }}
+            />
           </ReactQueryProvider>
         </ThemeProvider>
       </body>
