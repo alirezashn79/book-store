@@ -2,7 +2,7 @@
 
 import { useUppyManager } from '@/hooks/useUppyManager'
 
-export default function UppyProvider() {
+export default function UppyManager() {
   useUppyManager()
   return null
 }

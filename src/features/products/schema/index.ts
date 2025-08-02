@@ -1,56 +1,40 @@
-import Joi from 'joi'
+import { z } from 'zod'
 
-const bookSchema = Joi.object({
-  title: Joi.string().required(),
-  author: Joi.string().required(),
-  translator: Joi.string().allow(null).optional(),
-  publisherId: Joi.string().allow(null).optional(),
-  publishYear: Joi.number().integer().allow(null).optional(),
-  printEdition: Joi.number().integer().allow(null).optional(),
-  isbn: Joi.string().allow(null).optional(),
-  summary: Joi.string().allow(null, '').optional(),
-  language: Joi.string().allow(null).optional(),
-  pageCount: Joi.number().integer().allow(null).optional(),
-  //   format: Joi.string().valid('HARDCOVER', 'PAPERBACK').allow(null).optional(),
-  format: Joi.string().allow(null).optional(),
-  //   paperType: Joi.string().valid('GLOSSY', 'MATTE', 'RECYCLED').allow(null).optional(),
-  paperType: Joi.string().allow(null).optional(),
-  //   coverType: Joi.string().valid('HARDCOVER', 'SOFTBACK').allow(null).optional(),
-  coverType: Joi.string().allow(null).optional(),
-  weight: Joi.number().integer().allow(null).optional(),
-  dimensions: Joi.string().allow(null).optional(),
-  price: Joi.number().required(),
-  stock: Joi.number().integer().required(),
-  thumbnail: Joi.string().allow(null).optional(),
-  images: Joi.array().items(Joi.string()).allow(null).optional(),
-  categoryId: Joi.string().required(),
-  isActive: Joi.boolean().default(true),
-  topics: Joi.array().items(Joi.string()).allow(null).optional(),
+export const bookCreateSchema = z.object({
+  title: z.string().min(1, { message: 'عنوان کتاب الزامی است' }),
+  description: z.string().max(2000).optional(),
+  isbn: z
+    .string()
+    .regex(/^[0-9\-]{10,17}$/, { message: 'فرمت ISBN نامعتبر است' })
+    .optional(),
+  price: z.number().positive({ message: 'قیمت باید عدد مثبت باشد' }),
+  stock: z.number().int().nonnegative({ message: 'stock نباید منفی باشد' }),
+  pages: z.number().int().positive().optional(),
+  publisherId: z.number().int().positive(),
+  isActive: z.boolean().optional(),
+  publishYear: z
+    .string()
+    .optional()
+    .refine((d) => !d || !isNaN(Date.parse(d)), { message: 'تاریخ نامعتبر است' }),
+  printEdition: z.int().optional(),
+  language: z.string().optional(),
+  paperType: z.string().optional(),
+  height: z.int().positive().optional(),
+  width: z.int().positive().optional(),
+  weight: z.int().positive().optional(),
+
+  // many-to-many relations
+  categoryIds: z.array(z.number().int().positive()),
+  topicIds: z.array(z.number().int().positive()),
+  authorIds: z.array(z.number().int().positive()),
+  translatorIds: z.array(z.number().int().positive()).optional(),
+  imageIds: z.array(z.string().cuid()),
 })
 
-interface IBookAdd {
-  title: string
-  author: string
-  translator?: string | null
-  publisherId?: string | null
-  publishYear?: number | null
-  printEdition?: number | null
-  isbn?: string | null
-  summary?: string | null
-  language?: string | null
-  pageCount?: number | null
-  format?: string | null
-  paperType?: string | null
-  coverType?: string | null
-  weight?: number | null
-  dimensions?: string | null
-  price: number
-  stock: number
-  thumbnail?: string | null
-  isActive?: boolean
-  images?: string[] | null
-  categoryId: string
-  topics?: string[] | null
-}
+export const bookUpdateSchema = bookCreateSchema
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'حداقل یک فیلد باید برای بروزرسانی ارسال شود.',
+  })
 
-export { bookSchema, type IBookAdd }
+export type ICreateBookSchemaType = z.infer<typeof bookCreateSchema>

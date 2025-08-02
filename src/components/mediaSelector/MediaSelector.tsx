@@ -2,38 +2,56 @@
 
 import MediaUploader from '@/features/media/components/mediaUploader'
 import useLoadMedia from '@/features/media/hooks/useLoadMedia'
+import { useUppyStore } from '@/stores/uppyStore'
 import { cn } from '@/utils/cn'
+import { CheckCircle, Maximize2, Minimize2, X } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
+import { Path, PathValue, UseFormSetValue } from 'react-hook-form'
 import Overlay from '../common/Overlay'
 import Button from '../ui/button/Button'
-import { useUppyStore } from '@/stores/uppyStore'
-import useMediaSelectorStore from '@/stores/mediaSelectorStore'
-import { CheckCircle } from 'lucide-react'
 
-export default function MediaSelector() {
+interface IProps<T extends object> {
+  count?: number
+  values: string[]
+  setValue: UseFormSetValue<T>
+  field: Path<T>
+  error?: string
+}
+
+export default function MediaSelector<T extends object>({
+  count = 1,
+  values,
+  setValue,
+  field,
+  error,
+}: IProps<T>) {
   const [isOpen, setIsOpen] = useState(false)
   const isUploading = useUppyStore((s) => s.isUploading)
   const [isLast, setIsLast] = useState(false)
-  const { count, setCount, selectedMedias, setSelectedMedias } = useMediaSelectorStore()
+  const [isFull, setIsFull] = useState(false)
 
   const toggle = () => setIsOpen((prev) => !prev)
   const {
     ref,
-    getMedia: { data: media, isFetchingNextPage, isPending, isRefetching, refetch },
-  } = useLoadMedia({ enabled: false })
+    getMedia: { data: media, isFetchingNextPage, isPending, isRefetching },
+  } = useLoadMedia({ enabled: true })
 
-  const mediaList = useMemo(() => media && media.pages.flatMap((group) => group.data), [media])
-  const total = useMemo(() => media && media.pages.flatMap((group) => group.meta)[0].total, [media])
+  const mediaList = useMemo(
+    () =>
+      media &&
+      media.pages.flatMap((group) => group.data.filter((item) => item.mimeType.includes('image'))),
+    [media]
+  )
 
   const handleSelect = (id: string) => {
-    const tmp = selectedMedias.slice()
+    const tmp = values.slice()
     if (tmp.includes(id)) {
       const filtered = tmp.filter((item) => item !== id)
-      setSelectedMedias(filtered)
+      setValue(field, filtered as PathValue<T, Path<T>>)
       return
     }
-    if (selectedMedias.length >= count) {
+    if (values.length >= count) {
       if (isLast) {
         tmp.shift()
         tmp.unshift(id)
@@ -43,17 +61,16 @@ export default function MediaSelector() {
         tmp.push(id)
         setIsLast(true)
       }
-      setSelectedMedias(tmp)
+      setValue(field, tmp as PathValue<T, Path<T>>)
       return
     }
     tmp.push(id)
-    setSelectedMedias(tmp)
+    setValue(field, tmp as PathValue<T, Path<T>>)
   }
 
-  useEffect(() => {
-    if (!isOpen) return
-    refetch()
-  }, [isOpen])
+  const reset = () => {
+    setValue(field, [] as PathValue<T, Path<T>>)
+  }
 
   useEffect(() => {
     const onEscape = (e: KeyboardEvent) => {
@@ -67,30 +84,71 @@ export default function MediaSelector() {
     }
   }, [])
 
+  //   useEffect(() => {
+  //     if (isOpen) refetch()
+  //   }, [isOpen, refetch])
+
   return (
     <>
-      <Button onClick={toggle} variant={selectedMedias.length > 0 ? 'primary' : 'outline'}>
-        {selectedMedias.length > 0 ? `${selectedMedias.length} انتخاب شده` : 'انتخاب رسانه'}
-      </Button>
+      <button
+        className={cn(
+          'shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30',
+          error &&
+            'text-error-800 border-error-500 focus:ring-error-500/10 dark:text-error-400 dark:border-error-500'
+        )}
+        onClick={toggle}
+      >
+        {values.length > 0
+          ? `${values.length} انتخاب شده`
+          : error
+            ? 'انتخاب حداقل 1 عکس اجباری است'
+            : 'انتخاب رسانه'}
+      </button>
+
+      {!!error && <p className="text-error-500 mt-1.5 text-xs">{error}</p>}
 
       {isOpen && (
         <div
           className={cn(
-            'fixed start-0 end-0 bottom-0 z-999999 rounded-t-2xl bg-white p-4 shadow-inner transition-all dark:bg-gray-950'
+            'fixed start-0 end-0 bottom-0 z-999999 rounded-t-2xl bg-white p-4 shadow-inner dark:bg-gray-950',
+            isFull && 'top-0 rounded-t-none'
           )}
         >
+          <div className="flex items-center gap-2">
+            <button onClick={() => setIsOpen(false)}>
+              <X className="size-5 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button onClick={() => setIsFull((prev) => !prev)}>
+              {isFull ? (
+                <Minimize2 className="size-5 text-gray-600 dark:text-gray-400" />
+              ) : (
+                <Maximize2 className="size-5 text-gray-600 dark:text-gray-400" />
+              )}
+            </button>
+          </div>
+          <div className="flex items-center justify-between py-4">
+            <h3>انتخاب رسانه</h3>
+            <div className="flex items-center gap-x-2">
+              {values.length > 0 && (
+                <Button onClick={reset} variant="outline" className="h-10 min-w-20">
+                  لغو
+                </Button>
+              )}
+              <Button onClick={() => setIsOpen(false)} variant="primary" className="h-10 min-w-20">
+                انتخاب
+              </Button>
+            </div>
+          </div>
+
           {isRefetching && <p className="my-4 animate-pulse text-center">در حال بروزرسانی...</p>}
           {isUploading && <p className="my-4 animate-pulse text-center">در حال آپلود...</p>}
-          {total && !isRefetching && !isUploading && (
+          {!isRefetching && !isUploading && (
             <p className="my-4 text-center">
-              تعداد کل ({total}) - تعداد مجاز انتخاب: ({count}) - انتخاب شده: (
-              {selectedMedias.length})
+              تعداد مجاز انتخاب: ({count}) - انتخاب شده: ({values.length})
             </p>
           )}
-          <div className="py-4">
-            <h3>انتخاب رسانه</h3>
-          </div>
-          <div className="h-[22rem] overflow-y-auto">
+
+          <div className={cn('h-[22rem] overflow-y-auto', isFull && 'h-full pb-40')}>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
               <div className="col-span-2 row-span-2 min-h-80 md:col-span-3 lg:col-span-2 lg:h-full">
                 <MediaUploader />
@@ -131,9 +189,9 @@ export default function MediaSelector() {
                     )
                   )}
 
-                  {selectedMedias.includes(mediaItem.id) && (
-                    <div className="bg-brand-500/20 absolute inset-0 flex items-center justify-center">
-                      <CheckCircle className="size-16" />
+                  {values.includes(mediaItem.id) && (
+                    <div className="bg-brand-500/25 border-brand-500 absolute inset-0 flex items-center justify-center rounded-md border-2">
+                      <CheckCircle className="size-16 text-white" />
                     </div>
                   )}
                 </div>

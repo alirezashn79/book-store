@@ -9,23 +9,23 @@ interface IProps {
 }
 
 async function queryFn(responseType: boolean) {
-  let url = endpoints.categories.default
+  let url = endpoints.authors.default
   if (responseType) url += '?responseType=true'
   const response = await api({ isAuth: false })
     .get<ApiResponse<{ id: number; name: string }[]>>(url)
     .json()
 
-  if (!response.success) throw new Error('error to fetch categories')
+  if (!response.success) throw new Error('error to fetch authors')
 
   return response.data
 }
 
-export default function useGetCategories({
+export default function useGetAuthors({
   responseType = false,
   options = { enabled: true },
 }: IProps) {
   return useQuery({
-    queryKey: ['categories-responseType'],
+    queryKey: ['authors-responseType'],
     queryFn: () => queryFn(responseType),
     enabled: options.enabled ? true : false,
   })

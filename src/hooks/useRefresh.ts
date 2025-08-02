@@ -4,15 +4,8 @@ export function useRefresh(keys: QueryKey | QueryKey[]) {
   const queryClient = useQueryClient()
 
   return async () => {
-    const keyArray = Array.isArray(keys) ? keys : [keys]
+    const keyArray = Array.isArray(keys[0]) ? (keys as QueryKey[]) : [keys as QueryKey]
 
-    await Promise.all(
-      keyArray.map((key) =>
-        queryClient.refetchQueries({
-          queryKey: key,
-          type: 'all',
-        })
-      )
-    )
+    await Promise.all(keyArray.map((key) => queryClient.invalidateQueries({ queryKey: key })))
   }
 }

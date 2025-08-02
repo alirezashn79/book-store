@@ -1,4 +1,4 @@
-import { bookUpdateSchema } from '@/features/book/schema'
+import { bookUpdateSchema } from '@/features/products/schema'
 import { adminOnly, getCurrentUser } from '@/libs/auth'
 import { omit } from '@/libs/omit'
 import { prisma } from '@/libs/prisma'

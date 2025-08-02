@@ -9,23 +9,23 @@ interface IProps {
 }
 
 async function queryFn(responseType: boolean) {
-  let url = endpoints.categories.default
+  let url = endpoints.translators.default
   if (responseType) url += '?responseType=true'
   const response = await api({ isAuth: false })
     .get<ApiResponse<{ id: number; name: string }[]>>(url)
     .json()
 
-  if (!response.success) throw new Error('error to fetch categories')
+  if (!response.success) throw new Error('error to fetch translators')
 
   return response.data
 }
 
-export default function useGetCategories({
+export default function useGetTranslators({
   responseType = false,
   options = { enabled: true },
 }: IProps) {
   return useQuery({
-    queryKey: ['categories-responseType'],
+    queryKey: ['translators-responseType'],
     queryFn: () => queryFn(responseType),
     enabled: options.enabled ? true : false,
   })

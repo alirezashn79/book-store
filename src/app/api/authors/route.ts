@@ -8,6 +8,26 @@ import { NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
+    const url = new URL(request.url)
+    const responseType = Boolean(url.searchParams.get('responseType') || undefined)
+
+    if (responseType) {
+      const categoriesWithoutPagination = await prisma.author.findMany({
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+        orderBy: { firstName: 'desc' },
+      })
+
+      const res = categoriesWithoutPagination.map((item) => ({
+        id: item.id,
+        name: `${item.firstName} ${item.lastName}`,
+      }))
+
+      return ApiResponseHandler.success(res)
+    }
     const { page, limit, skip, search, filters } = PaginationHelper.extractParams(request)
 
     const validationError = PaginationHelper.validateParams(page, limit)

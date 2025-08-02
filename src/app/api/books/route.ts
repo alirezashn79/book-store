@@ -1,4 +1,4 @@
-import { bookCreateSchema } from '@/features/book/schema'
+import { bookCreateSchema } from '@/features/products/schema'
 import { Prisma } from '@/generated/prisma'
 import { adminOnly, getCurrentUser } from '@/libs/auth'
 import { omit } from '@/libs/omit'

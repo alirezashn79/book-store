@@ -1,4 +1,3 @@
-// hooks/useUppyManager.tsx
 'use client'
 
 import { useEffect } from 'react'

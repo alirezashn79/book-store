@@ -3,10 +3,24 @@ export const endpoints = {
     login: 'auth/login',
     register: 'auth/register',
   },
+
   media: 'media',
-  authors: '/authors',
-  translators: '/translators',
+  authors: {
+    default: 'authors',
+  },
+  translators: {
+    default: 'translators',
+  },
   categories: {
     default: 'categories',
+  },
+  books: {
+    default: 'books',
+  },
+  topics: {
+    default: 'topics',
+  },
+  publishers: {
+    default: 'publishers',
   },
 }

@@ -1,82 +1,67 @@
 'use client'
 import ComponentCard from '@/components/common/ComponentCard'
-import CreatableMultiSelectComponent from '@/components/form/CreatableMultiSelect'
-import CreatableSelectComponent from '@/components/form/CreatableSelect'
-import FileInput from '@/components/form/input/FileInput'
 import Input from '@/components/form/input/InputField'
 import TextArea from '@/components/form/input/TextArea'
 import Label from '@/components/form/Label'
-import { OptionType } from '@/components/form/Select'
 import Switch from '@/components/form/switch/Switch'
 import Button from '@/components/ui/button/Button'
-import { bookSchema, IBookAdd } from '@/features/products/schema'
-import { createUppy } from '@/libs/createUppy'
-import { joiResolver } from '@hookform/resolvers/joi'
-import Dashboard from '@uppy/react/lib/Dashboard'
+import { compact } from '@/libs/compact'
+import dynamic from 'next/dynamic'
 import { useState } from 'react'
-import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-import { categoryOptions, topicOptions } from '../data'
-import { useTheme } from '@/context/ThemeContext'
-import useGetCategories from '@/features/categories/hooks/useGetCategories'
-
-const fetchCategories = (): Promise<OptionType[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(categoryOptions) // برگرداندن گزینه‌ها
-    }, 1000) // شبیه‌سازی تاخیر سرور
-  })
-}
-
-// تابع برای ایجاد گزینه جدید
-const createCategory = async (label: string): Promise<OptionType> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const fakeId = crypto.randomUUID() // شبیه‌سازی آیدی برگشتی از بک‌اند
-      resolve({ value: fakeId, label })
-    }, 1000)
-  })
-}
-
-const fetchTopics = (): Promise<OptionType[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(topicOptions) // برگرداندن گزینه‌ها
-    }, 1000) // شبیه‌سازی تاخیر سرور
-  })
-}
-
-// تابع برای ایجاد گزینه جدید
-const createTopic = async (label: string): Promise<OptionType> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const fakeId = crypto.randomUUID() // شبیه‌سازی آیدی برگشتی از بک‌اند
-      resolve({ value: fakeId, label })
-    }, 1000)
-  })
-}
+import { Controller, SubmitHandler, useForm, useWatch } from 'react-hook-form'
+import useCreateBook from '../hooks/useCreateBook'
+import { ICreateBookSchemaType } from '../schema'
+const MediaSelector = dynamic(() => import('@/components/mediaSelector/MediaSelector'), {
+  ssr: false,
+  loading: () => (
+    <div className="mx-auto mt-4 size-5 animate-spin rounded-full border-t-2 border-blue-500" />
+  ),
+})
+const SelectCategory = dynamic(() => import('./SelectCategory'), {
+  ssr: false,
+  loading: () => (
+    <div className="mx-auto mt-4 size-5 animate-spin rounded-full border-t-2 border-blue-500" />
+  ),
+})
+const SelectTopic = dynamic(() => import('./SelectTopic'), {
+  ssr: false,
+  loading: () => (
+    <div className="mx-auto mt-4 size-5 animate-spin rounded-full border-t-2 border-blue-500" />
+  ),
+})
+const SelectPublisher = dynamic(() => import('./SelectPublisher'), {
+  ssr: false,
+  loading: () => (
+    <div className="mx-auto mt-4 size-5 animate-spin rounded-full border-t-2 border-blue-500" />
+  ),
+})
+const SelectAuthor = dynamic(() => import('./SelectAuthor'), {
+  ssr: false,
+  loading: () => (
+    <div className="mx-auto mt-4 size-5 animate-spin rounded-full border-t-2 border-blue-500" />
+  ),
+})
+const SelectTranslator = dynamic(() => import('./SelectTranslator'), {
+  ssr: false,
+  loading: () => (
+    <div className="mx-auto mt-4 size-5 animate-spin rounded-full border-t-2 border-blue-500" />
+  ),
+})
 
 export default function CreateProductForm() {
   const [isShowOptionalFields, setIsShowOptionalFields] = useState(false)
-  const [uppy] = useState(createUppy)
-  const { theme } = useTheme()
-  const { data: categories } = useGetCategories({ responseType: true })
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
+  const { handleSubmit, control, setValue, reset } = useForm<ICreateBookSchemaType>({ mode: 'all' })
+  const { imageIds } = useWatch<ICreateBookSchemaType>({
     control,
-  } = useForm<IBookAdd>({
-    resolver: joiResolver(bookSchema),
-    defaultValues: {
-      isActive: true,
-      topics: [],
-    },
   })
-
-  console.log(errors)
-  const onSubmit: SubmitHandler<IBookAdd> = (e) => {
-    console.log(e)
+  const { mutateAsync, isPending } = useCreateBook()
+  const onSubmit: SubmitHandler<ICreateBookSchemaType> = async (values) => {
+    await mutateAsync(compact(values) as unknown as ICreateBookSchemaType, {
+      onSuccess: () => {
+        reset()
+      },
+    })
+    console.log(compact(values))
   }
 
   return (
@@ -97,138 +82,152 @@ export default function CreateProductForm() {
             <Controller
               control={control}
               name="title"
-              render={({ field }) => <Input {...field} error={errors.title?.message} />}
+              rules={{
+                required: { value: true, message: 'الزامی است' },
+                minLength: { value: 4, message: 'حداقل 4 کلمه وارد کنید' },
+              }}
+              defaultValue=""
+              render={({ field, fieldState }) => (
+                <Input {...field} error={fieldState.error?.message} />
+              )}
             />
           </div>
 
-          <div>
-            <Label>نام نویسنده</Label>
-            <Controller
-              control={control}
-              name="author"
-              render={({ field }) => <Input {...field} error={errors.author?.message} />}
-            />
-          </div>
           <div>
             <Label>قیمت</Label>
-
             <Controller
               control={control}
               name="price"
-              render={({ field }) => <Input {...field} error={errors.price?.message} />}
+              rules={{
+                required: { value: true, message: 'الزامی است' },
+                min: { value: 10_000, message: 'قیمت از 10000 تومان کمتر نباشد' },
+              }}
+              defaultValue={0}
+              render={({ field: { onChange, ...rest }, fieldState }) => (
+                <Input
+                  {...rest}
+                  onChange={(e) => {
+                    const val = e.target.valueAsNumber
+                    onChange(isNaN(val) ? 0 : val)
+                  }}
+                  dir="ltr"
+                  type="number"
+                  error={fieldState.error?.message}
+                />
+              )}
             />
           </div>
+
           <div>
-            <Label>موجودی</Label>
+            <Label>موجودی انبار</Label>
             <Controller
               control={control}
               name="stock"
-              render={({ field }) => <Input {...field} error={errors.price?.message} />}
-            />
-          </div>
-          <div>
-            <Label optional>تامنیل</Label>
-            <FileInput {...register('thumbnail')} />
-          </div>
-          <div>
-            <Label>دسته بندی</Label>
-            {/* <Input {...register('categoryId')} error={errors.categoryId?.message} /> */}
-            <Controller
-              control={control}
-              name="categoryId"
-              render={({ field }) => (
-                <CreatableSelectComponent
-                  fetchOptions={fetchCategories}
-                  createOption={createCategory}
-                  value={field.value ? { value: field.value, label: field.value } : null}
-                  onChange={(val) => field.onChange(val?.value)}
-                  placeholder="دسته‌بندی را انتخاب یا ایجاد کنید"
+              rules={{
+                validate: (v) => (v && v > 0) || 'الزامی است',
+              }}
+              defaultValue={0}
+              render={({ field: { onChange, ...rest }, fieldState }) => (
+                <Input
+                  {...rest}
+                  onChange={(e) => {
+                    const val = e.target.valueAsNumber
+                    onChange(isNaN(val) ? 0 : val)
+                  }}
+                  type="number"
+                  dir="ltr"
+                  error={fieldState.error?.message}
                 />
               )}
             />
           </div>
+
+          <div>
+            <Label>دسته بندی</Label>
+            <Controller
+              control={control}
+              name="categoryIds"
+              rules={{
+                required: { value: true, message: 'حداقل یک مورد را انتخاب کنید' },
+              }}
+              defaultValue={[]}
+              render={({ fieldState }) => (
+                <SelectCategory formsetValue={setValue} error={fieldState.error?.message} />
+              )}
+            />
+          </div>
+
           <div>
             <Label>موضوعات</Label>
             <Controller
-              name="topics"
               control={control}
-              render={({ field }) => (
-                <CreatableMultiSelectComponent
-                  fetchOptions={fetchTopics}
-                  createOption={createTopic}
-                  placeholder="موضوعات را انتخاب یا ایجاد کنید"
-                  value={
-                    (field.value || []).map((v) => ({ label: v, value: v })) // نمایش اولیه
-                  }
-                  onChange={(newVals) => field.onChange(newVals.map((v) => v.value))} // فقط array of value
+              name="topicIds"
+              rules={{
+                required: { value: true, message: 'حداقل یک مورد را انتخاب کنید' },
+              }}
+              defaultValue={[]}
+              render={({ fieldState }) => (
+                <SelectTopic formsetValue={setValue} error={fieldState.error?.message} />
+              )}
+            />
+          </div>
+
+          <div>
+            <Label>ناشر</Label>
+            <Controller
+              control={control}
+              name="publisherId"
+              rules={{
+                validate: (v) => (v && v > 0) || 'حداقل یک مورد را انتخاب کنید',
+              }}
+              defaultValue={0}
+              render={({ fieldState }) => (
+                <SelectPublisher formsetValue={setValue} error={fieldState.error?.message} />
+              )}
+            />
+          </div>
+
+          <div>
+            <Label>نام نویسنده (ها)</Label>
+            <Controller
+              control={control}
+              name="authorIds"
+              rules={{
+                required: { value: true, message: 'حداقل یک مورد را انتخاب کنید' },
+              }}
+              defaultValue={[]}
+              render={({ fieldState }) => (
+                <SelectAuthor formsetValue={setValue} error={fieldState.error?.message} />
+              )}
+            />
+          </div>
+
+          <div>
+            <Label>عکس ها</Label>
+            <Controller
+              control={control}
+              name="imageIds"
+              rules={{
+                required: { value: true, message: 'الزامی است' },
+              }}
+              defaultValue={[]}
+              render={({ fieldState }) => (
+                <MediaSelector<ICreateBookSchemaType>
+                  count={3}
+                  values={imageIds ?? []}
+                  field="imageIds"
+                  setValue={setValue}
+                  error={fieldState.error?.message}
                 />
               )}
             />
           </div>
-          {isShowOptionalFields && (
-            <>
-              <div>
-                <Label optional>نام مترجم</Label>
-                <Input {...register('translator')} error={errors.translator?.message} />
-              </div>
-              <div>
-                <Label optional>ناشر</Label>
-                <Input {...register('publisherId')} error={errors.publisherId?.message} />
-              </div>
-              <div>
-                <Label optional>سال انتشار</Label>
-                <Input {...register('publishYear')} error={errors.publishYear?.message} />
-              </div>
-              <div>
-                <Label optional>نوبت چاپ</Label>
-                <Input {...register('printEdition')} error={errors.printEdition?.message} />
-              </div>
-              <div>
-                <Label optional>شماره استاندارد بین المللی</Label>
-                <Input {...register('isbn')} error={errors.isbn?.message} />
-              </div>
 
-              <div>
-                <Label optional>زبان</Label>
-                <Input {...register('language')} error={errors.language?.message} />
-              </div>
-              <div>
-                <Label optional>تعداد صفحات</Label>
-                <Input
-                  type="number"
-                  {...register('pageCount', {
-                    valueAsNumber: true,
-                  })}
-                  error={errors.pageCount?.message}
-                />
-              </div>
-              <div>
-                <Label optional>توع قظع</Label>
-                <Input {...register('format')} error={errors.format?.message} />
-              </div>
-              <div>
-                <Label optional>جنس کاغذ</Label>
-                <Input {...register('paperType')} error={errors.paperType?.message} />
-              </div>
-              <div>
-                <Label optional>نوع جلد</Label>
-                <Input {...register('coverType')} error={errors.coverType?.message} />
-              </div>
-              <div>
-                <Label optional>ابعاد</Label>
-                <Input {...register('dimensions')} error={errors.dimensions?.message} />
-              </div>
-              <div className="md:col-span-2 lg:col-span-3">
-                <Label optional>خلاصه</Label>
-                <TextArea {...register('summary')} error={errors.summary?.message} placeholder="" />
-              </div>
-            </>
-          )}
-
-          <div className="py-4 sm:col-span-2 lg:col-span-3">
+          <div className="flex items-center justify-center">
             <Controller
               control={control}
               name="isActive"
+              defaultValue={true}
               render={({ field: { value, onChange, ...rest } }) => (
                 <Switch
                   label={`وضعیت (${value ? 'فعال' : 'غیرفعال'})`}
@@ -239,18 +238,221 @@ export default function CreateProductForm() {
               )}
             />
           </div>
+
+          {isShowOptionalFields && (
+            <>
+              <div>
+                <Label optional>نام مترجم</Label>
+                <Controller
+                  control={control}
+                  name="translatorIds"
+                  rules={{
+                    required: false,
+                  }}
+                  defaultValue={[]}
+                  render={({ fieldState }) => (
+                    <SelectTranslator formsetValue={setValue} error={fieldState.error?.message} />
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label optional>شابک</Label>
+                <Controller
+                  control={control}
+                  name="isbn"
+                  rules={{
+                    required: false,
+                    pattern: { value: /^[0-9\-]{10,17}$/, message: 'فرمت شابک صحیح نیست' },
+                  }}
+                  defaultValue=""
+                  render={({ field, fieldState }) => (
+                    <Input {...field} error={fieldState.error?.message} />
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label optional>تعداد صفحات</Label>
+                <Controller
+                  control={control}
+                  name="pages"
+                  rules={{
+                    required: { value: false, message: 'الزامی است' },
+                    min: { value: 1, message: 'صفحات از 1 عدد کمتر نباشد' },
+                  }}
+                  defaultValue={1}
+                  render={({ field, fieldState }) => (
+                    <Input type="number" {...field} dir="ltr" error={fieldState.error?.message} />
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label optional>سال انتشار</Label>
+                <Controller
+                  control={control}
+                  name="publishYear"
+                  rules={{
+                    required: false,
+                  }}
+                  defaultValue=""
+                  render={({ field, fieldState }) => (
+                    <Input {...field} type="date" error={fieldState.error?.message} />
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label optional>نوبت چاپ</Label>
+                <Controller
+                  control={control}
+                  name="printEdition"
+                  rules={{
+                    required: false,
+                  }}
+                  defaultValue={0}
+                  render={({ field: { onChange, ...rest }, fieldState }) => (
+                    <Input
+                      {...rest}
+                      onChange={(e) => {
+                        const val = e.target.valueAsNumber
+                        onChange(isNaN(val) ? 0 : val)
+                      }}
+                      dir="ltr"
+                      type="number"
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label optional>زبان</Label>
+                <Controller
+                  control={control}
+                  name="language"
+                  rules={{
+                    required: false,
+                    minLength: { value: 4, message: 'حداقل 4 کلمه وارد کنید' },
+                  }}
+                  defaultValue=""
+                  render={({ field, fieldState }) => (
+                    <Input {...field} error={fieldState.error?.message} />
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label optional>جنس کاغذ</Label>
+                <Controller
+                  control={control}
+                  name="paperType"
+                  rules={{
+                    required: false,
+                    minLength: { value: 3, message: 'حداقل 3 کلمه وارد کنید' },
+                  }}
+                  defaultValue=""
+                  render={({ field, fieldState }) => (
+                    <Input {...field} type="number" error={fieldState.error?.message} />
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label optional>ابعاد</Label>
+                <div className="flex items-center justify-center gap-2">
+                  <Controller
+                    control={control}
+                    name="height"
+                    rules={{
+                      required: false,
+                    }}
+                    defaultValue={0}
+                    render={({ field: { onChange, ...rest }, fieldState }) => (
+                      <Input
+                        {...rest}
+                        onChange={(e) => {
+                          const val = e.target.valueAsNumber
+                          onChange(isNaN(val) ? 0 : val)
+                        }}
+                        dir="ltr"
+                        type="number"
+                        error={fieldState.error?.message}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="width"
+                    rules={{
+                      required: false,
+                    }}
+                    defaultValue={0}
+                    render={({ field: { onChange, ...rest }, fieldState }) => (
+                      <Input
+                        {...rest}
+                        onChange={(e) => {
+                          const val = e.target.valueAsNumber
+                          onChange(isNaN(val) ? 0 : val)
+                        }}
+                        dir="ltr"
+                        type="number"
+                        error={fieldState.error?.message}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label optional>وزن کتاب</Label>
+                <Controller
+                  control={control}
+                  name="weight"
+                  rules={{
+                    required: false,
+                  }}
+                  defaultValue={0}
+                  render={({ field: { onChange, ...rest }, fieldState }) => (
+                    <Input
+                      {...rest}
+                      onChange={(e) => {
+                        const val = e.target.valueAsNumber
+                        onChange(isNaN(val) ? 0 : val)
+                      }}
+                      type="number"
+                      dir="ltr"
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="md:col-span-2 lg:col-span-3">
+                <Label optional>خلاصه</Label>
+                <Controller
+                  control={control}
+                  name="description"
+                  rules={{
+                    required: false,
+                    minLength: { value: 4, message: 'حداقل 4 کلمه وارد کنید' },
+                  }}
+                  defaultValue=""
+                  render={({ field, fieldState }) => (
+                    <TextArea error={fieldState.error?.message} {...field} placeholder="" />
+                  )}
+                />
+              </div>
+            </>
+          )}
         </div>
         <div className="mt-4 flex justify-end">
-          <Button type="submit" className="w-full sm:w-1/2 md:w-1/4">
+          <Button disabled={isPending} type="submit" className="w-full sm:w-1/2 md:w-1/4">
             ثبت
           </Button>
         </div>
       </form>
-      <div>
-        <Label optional>عکس ها</Label>
-        {/* <DropzoneComponent /> */}
-        <Dashboard className="!w-full" theme={theme} uppy={uppy} />
-      </div>
     </ComponentCard>
   )
 }

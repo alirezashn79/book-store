@@ -13,9 +13,11 @@ import DeleteMedia from '../hooks/DeleteMedia'
 import useLoadMedia from '../hooks/useLoadMedia'
 import useRemoveMedia from '../hooks/useRemoveMedia'
 import MediaUploader from './mediaUploader'
+import { useUppyManager } from '@/hooks/useUppyManager'
 
 export default function MedisList() {
   const [isOpenSidebar, setIsOpenSidebar] = useState(false)
+  useUppyManager()
   const [isDelete, setIsDelete] = useState(false)
   const mediaContainer = useRef<HTMLDivElement>(null)
   const isUploading = useUppyStore((s) => s.isUploading)
