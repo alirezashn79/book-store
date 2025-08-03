@@ -127,12 +127,14 @@ export async function POST(request: NextRequest) {
       'topicIds',
       'translatorIds',
       'imageIds',
+      'publishYear',
     ])
 
     const result = await prisma.$transaction(async (tx) => {
       const book = await tx.book.create({
         data: {
           ...pureBookData,
+          publishYear: data.publishYear ? new Date(data.publishYear) : null,
           images: data.imageIds ? { connect: data.imageIds.map((id) => ({ id })) } : undefined,
         },
       })

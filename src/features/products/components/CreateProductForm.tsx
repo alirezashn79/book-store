@@ -51,17 +51,17 @@ const SelectTranslator = dynamic(() => import('./SelectTranslator'), {
 export default function CreateProductForm() {
   const [isShowOptionalFields, setIsShowOptionalFields] = useState(false)
   const { handleSubmit, control, setValue, reset } = useForm<ICreateBookSchemaType>({ mode: 'all' })
-  const { imageIds } = useWatch<ICreateBookSchemaType>({
+  const { imageIds, price, stock } = useWatch<ICreateBookSchemaType>({
     control,
   })
-  const { mutateAsync, isPending } = useCreateBook()
+
+  const { mutateAsync, isPending, isSuccess } = useCreateBook()
   const onSubmit: SubmitHandler<ICreateBookSchemaType> = async (values) => {
     await mutateAsync(compact(values) as unknown as ICreateBookSchemaType, {
       onSuccess: () => {
         reset()
       },
     })
-    console.log(compact(values))
   }
 
   return (
@@ -88,7 +88,11 @@ export default function CreateProductForm() {
               }}
               defaultValue=""
               render={({ field, fieldState }) => (
-                <Input {...field} error={fieldState.error?.message} />
+                <Input
+                  {...field}
+                  error={fieldState.error?.message}
+                  success={!fieldState.invalid && fieldState.isDirty}
+                />
               )}
             />
           </div>
@@ -100,20 +104,28 @@ export default function CreateProductForm() {
               name="price"
               rules={{
                 required: { value: true, message: 'الزامی است' },
-                min: { value: 10_000, message: 'قیمت از 10000 تومان کمتر نباشد' },
+                min: { value: 10_000, message: 'قیمت از 10,000 تومان کمتر نباشد' },
               }}
               defaultValue={0}
               render={({ field: { onChange, ...rest }, fieldState }) => (
-                <Input
-                  {...rest}
-                  onChange={(e) => {
-                    const val = e.target.valueAsNumber
-                    onChange(isNaN(val) ? 0 : val)
-                  }}
-                  dir="ltr"
-                  type="number"
-                  error={fieldState.error?.message}
-                />
+                <>
+                  <Input
+                    {...rest}
+                    onChange={(e) => {
+                      const val = e.target.valueAsNumber
+                      onChange(isNaN(val) ? 0 : val)
+                    }}
+                    dir="ltr"
+                    type="number"
+                    error={fieldState.error?.message}
+                    success={!fieldState.invalid && fieldState.isDirty}
+                  />
+                  {!!price && price > 0 && (
+                    <span className="mt-1 text-xs text-gray-500">
+                      {price.toLocaleString()} تومان
+                    </span>
+                  )}
+                </>
               )}
             />
           </div>
@@ -128,16 +140,22 @@ export default function CreateProductForm() {
               }}
               defaultValue={0}
               render={({ field: { onChange, ...rest }, fieldState }) => (
-                <Input
-                  {...rest}
-                  onChange={(e) => {
-                    const val = e.target.valueAsNumber
-                    onChange(isNaN(val) ? 0 : val)
-                  }}
-                  type="number"
-                  dir="ltr"
-                  error={fieldState.error?.message}
-                />
+                <>
+                  <Input
+                    {...rest}
+                    onChange={(e) => {
+                      const val = e.target.valueAsNumber
+                      onChange(isNaN(val) ? 0 : val)
+                    }}
+                    type="number"
+                    dir="ltr"
+                    error={fieldState.error?.message}
+                    success={!fieldState.invalid && fieldState.isDirty}
+                  />
+                  {!!stock && stock > 0 && (
+                    <span className="mt-1 text-xs text-gray-500">{stock.toLocaleString()} عدد</span>
+                  )}
+                </>
               )}
             />
           </div>
@@ -152,7 +170,11 @@ export default function CreateProductForm() {
               }}
               defaultValue={[]}
               render={({ fieldState }) => (
-                <SelectCategory formsetValue={setValue} error={fieldState.error?.message} />
+                <SelectCategory
+                  isSuccess={isSuccess}
+                  formsetValue={setValue}
+                  error={fieldState.error?.message}
+                />
               )}
             />
           </div>
@@ -167,7 +189,11 @@ export default function CreateProductForm() {
               }}
               defaultValue={[]}
               render={({ fieldState }) => (
-                <SelectTopic formsetValue={setValue} error={fieldState.error?.message} />
+                <SelectTopic
+                  isSuccess={isSuccess}
+                  formsetValue={setValue}
+                  error={fieldState.error?.message}
+                />
               )}
             />
           </div>
@@ -182,7 +208,11 @@ export default function CreateProductForm() {
               }}
               defaultValue={0}
               render={({ fieldState }) => (
-                <SelectPublisher formsetValue={setValue} error={fieldState.error?.message} />
+                <SelectPublisher
+                  isSuccess={isSuccess}
+                  formsetValue={setValue}
+                  error={fieldState.error?.message}
+                />
               )}
             />
           </div>
@@ -197,7 +227,11 @@ export default function CreateProductForm() {
               }}
               defaultValue={[]}
               render={({ fieldState }) => (
-                <SelectAuthor formsetValue={setValue} error={fieldState.error?.message} />
+                <SelectAuthor
+                  isSuccess={isSuccess}
+                  formsetValue={setValue}
+                  error={fieldState.error?.message}
+                />
               )}
             />
           </div>
@@ -251,7 +285,11 @@ export default function CreateProductForm() {
                   }}
                   defaultValue={[]}
                   render={({ fieldState }) => (
-                    <SelectTranslator formsetValue={setValue} error={fieldState.error?.message} />
+                    <SelectTranslator
+                      isSuccess={isSuccess}
+                      formsetValue={setValue}
+                      error={fieldState.error?.message}
+                    />
                   )}
                 />
               </div>
@@ -278,12 +316,20 @@ export default function CreateProductForm() {
                   control={control}
                   name="pages"
                   rules={{
-                    required: { value: false, message: 'الزامی است' },
-                    min: { value: 1, message: 'صفحات از 1 عدد کمتر نباشد' },
+                    required: false,
                   }}
-                  defaultValue={1}
-                  render={({ field, fieldState }) => (
-                    <Input type="number" {...field} dir="ltr" error={fieldState.error?.message} />
+                  defaultValue={0}
+                  render={({ field: { onChange, ...rest }, fieldState }) => (
+                    <Input
+                      type="number"
+                      {...rest}
+                      onChange={(e) => {
+                        const val = e.target.valueAsNumber
+                        onChange(isNaN(val) ? 0 : val)
+                      }}
+                      dir="ltr"
+                      error={fieldState.error?.message}
+                    />
                   )}
                 />
               </div>
@@ -354,7 +400,7 @@ export default function CreateProductForm() {
                   }}
                   defaultValue=""
                   render={({ field, fieldState }) => (
-                    <Input {...field} type="number" error={fieldState.error?.message} />
+                    <Input {...field} error={fieldState.error?.message} />
                   )}
                 />
               </div>

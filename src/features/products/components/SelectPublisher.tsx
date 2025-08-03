@@ -2,7 +2,7 @@
 import useCreatePublisher from '@/features/publishers/hooks/useCreatePublisher'
 import useGetPublishers from '@/features/publishers/hooks/useGetPublishers'
 import { OptionType } from '@/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UseFormSetValue } from 'react-hook-form'
 import { SingleValue } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
@@ -11,9 +11,10 @@ import { ICreateBookSchemaType } from '../schema'
 interface IProps {
   error?: string
   formsetValue: UseFormSetValue<ICreateBookSchemaType>
+  isSuccess: boolean
 }
 
-export default function SelectPublisher({ formsetValue, error }: IProps) {
+export default function SelectPublisher({ formsetValue, error, isSuccess }: IProps) {
   const {
     data: Publishers,
     refetch,
@@ -49,6 +50,10 @@ export default function SelectPublisher({ formsetValue, error }: IProps) {
 
     formsetValue('publisherId', Number(newValue?.value))
   }
+
+  useEffect(() => {
+    if (isSuccess) setValue(null)
+  }, [isSuccess])
 
   return (
     <>

@@ -2,7 +2,7 @@
 import useCreateTranslator from '@/features/translators/hooks/useCreateTranslator'
 import useGetTranslators from '@/features/translators/hooks/useGetTranslators'
 import { OptionType } from '@/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UseFormSetValue } from 'react-hook-form'
 import { MultiValue } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
@@ -11,9 +11,10 @@ import { ICreateBookSchemaType } from '../schema'
 interface IProps {
   error?: string
   formsetValue: UseFormSetValue<ICreateBookSchemaType>
+  isSuccess: boolean
 }
 
-export default function SelectTranslator({ formsetValue, error }: IProps) {
+export default function SelectTranslator({ formsetValue, error, isSuccess }: IProps) {
   const {
     data: translators,
     refetch,
@@ -53,6 +54,10 @@ export default function SelectTranslator({ formsetValue, error }: IProps) {
     console.log(newValueUseForm)
     formsetValue('translatorIds', newValueUseForm)
   }
+
+  useEffect(() => {
+    if (isSuccess) setValue([])
+  }, [isSuccess])
 
   return (
     <>

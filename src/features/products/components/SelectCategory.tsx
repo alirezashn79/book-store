@@ -2,7 +2,7 @@
 import useCreateCategory from '@/features/categories/hooks/useCreateCategory'
 import useGetCategories from '@/features/categories/hooks/useGetCategories'
 import { OptionType } from '@/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UseFormSetValue } from 'react-hook-form'
 import { MultiValue } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
@@ -11,9 +11,10 @@ import { ICreateBookSchemaType } from '../schema'
 interface IProps {
   error?: string
   formsetValue: UseFormSetValue<ICreateBookSchemaType>
+  isSuccess: boolean
 }
 
-export default function SelectCategory({ formsetValue, error }: IProps) {
+export default function SelectCategory({ formsetValue, error, isSuccess }: IProps) {
   const {
     data: categories,
     refetch,
@@ -49,6 +50,10 @@ export default function SelectCategory({ formsetValue, error }: IProps) {
     const newValueUseForm = newValue.map((item) => Number(item.value))
     formsetValue('categoryIds', newValueUseForm)
   }
+
+  useEffect(() => {
+    if (isSuccess) setValue([])
+  }, [isSuccess])
 
   return (
     <>

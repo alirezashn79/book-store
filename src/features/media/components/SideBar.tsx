@@ -4,7 +4,6 @@ import { CloseLineIcon } from '@/icons'
 import { cn } from '@/utils/cn'
 import React, { useEffect } from 'react'
 import Overlay from '../../../components/common/Overlay'
-import useContextMenu from '@/hooks/useContextMenu'
 
 interface IProps {
   isOpen: boolean
@@ -14,7 +13,7 @@ interface IProps {
 }
 
 export default function SideBar({ isOpen, setIsOpen, title, children }: IProps) {
-  const { setClear } = useContextMenu()
+  //   const { setClear } = useContextMenu()
 
   useEffect(() => {
     const onSkape = (e: KeyboardEvent) => {
@@ -28,10 +27,10 @@ export default function SideBar({ isOpen, setIsOpen, title, children }: IProps) 
     }
   }, [])
 
-  useEffect(() => {
-    if (!isOpen) return
-    setClear()
-  }, [isOpen, setClear])
+  //   useEffect(() => {
+  //     if (!isOpen) return
+  //     setClear()
+  //   }, [isOpen, setClear])
 
   return (
     <>

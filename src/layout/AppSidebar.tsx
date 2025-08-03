@@ -11,14 +11,12 @@ import {
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
   PageIcon,
   PieChartIcon,
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
 } from '../icons/index'
-import SidebarWidget from './SidebarWidget'
 
 type NavItem = {
   name: string
@@ -40,13 +38,16 @@ const navItems: NavItem[] = [
   },
 
   {
-    icon: <BoxIcon />,
     name: 'محصولات',
-    path: '/products',
+    icon: <BoxIcon />,
+    subItems: [
+      { name: 'لیست', path: '/products' },
+      { name: 'اضافه کردن', path: '/products/add' },
+    ],
   },
   {
     icon: <GridIcon />,
-    name: 'رسانه',
+    name: 'رسانه ها',
     path: '/media',
   },
   {
@@ -55,11 +56,6 @@ const navItems: NavItem[] = [
     path: '/profile',
   },
 
-  {
-    name: 'Forms',
-    icon: <ListIcon />,
-    subItems: [{ name: 'Form Elements', path: '/form-elements', pro: false }],
-  },
   {
     name: 'Tables',
     icon: <TableIcon />,
@@ -346,7 +342,6 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
   )

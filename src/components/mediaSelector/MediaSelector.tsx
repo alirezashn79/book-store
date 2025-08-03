@@ -84,10 +84,6 @@ export default function MediaSelector<T extends object>({
     }
   }, [])
 
-  //   useEffect(() => {
-  //     if (isOpen) refetch()
-  //   }, [isOpen, refetch])
-
   return (
     <>
       <button

@@ -9,13 +9,15 @@ const useContextMenu = () => {
 
   const onRightClick = (e: React.MouseEvent, id: string | number) => {
     e.preventDefault()
+    setItemId(id)
     setPosition(e.clientX, e.clientY)
     setVisible(true)
-    setItemId(id)
   }
 
   useEffect(() => {
-    const handleClick = () => setResetContext()
+    const handleClick = () => {
+      setResetContext()
+    }
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setResetContext()

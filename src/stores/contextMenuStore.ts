@@ -25,6 +25,6 @@ export const useContextMenuStore = create<IContextMenu>((set) => ({
     set({ x: 0, y: 0, itemId: null, visible: false })
   },
   setResetContext: () => {
-    set({ x: 0, y: 0, visible: false })
+    set((state) => ({ x: 0, y: 0, visible: false, itemId: state.itemId }))
   },
 }))

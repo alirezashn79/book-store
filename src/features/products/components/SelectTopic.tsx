@@ -1,7 +1,7 @@
 'use client'
 import useCreateTopic from '@/features/topics/hooks/useCreateTopic'
 import { OptionType } from '@/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UseFormSetValue } from 'react-hook-form'
 import { MultiValue } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
@@ -11,9 +11,10 @@ import useGetTopics from '@/features/topics/hooks/useGetTopic'
 interface IProps {
   error?: string
   formsetValue: UseFormSetValue<ICreateBookSchemaType>
+  isSuccess: boolean
 }
 
-export default function SelectTopic({ formsetValue, error }: IProps) {
+export default function SelectTopic({ formsetValue, error, isSuccess }: IProps) {
   const {
     data: topics,
     refetch,
@@ -49,6 +50,10 @@ export default function SelectTopic({ formsetValue, error }: IProps) {
     const newValueUseForm = newValue.map((item) => Number(item.value))
     formsetValue('topicIds', newValueUseForm)
   }
+
+  useEffect(() => {
+    if (isSuccess) setValue([])
+  }, [isSuccess])
 
   return (
     <>
