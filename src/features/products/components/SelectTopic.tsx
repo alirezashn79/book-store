@@ -65,6 +65,7 @@ export default function SelectTopic({ formsetValue, error, isSuccess }: IProps) 
         loadingMessage={() => (
           <div className="mx-auto my-4 size-5 animate-spin rounded-full border-t-2 border-blue-500" />
         )}
+        noOptionsMessage={() => 'موضوعی وجود ندارد'}
         isClearable
         isLoading={isLoading || isPending}
         isDisabled={isPending}

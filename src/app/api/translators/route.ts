@@ -15,15 +15,14 @@ export async function GET(request: NextRequest) {
       const translatorsWithoutPagination = await prisma.translator.findMany({
         select: {
           id: true,
-          firstName: true,
-          lastName: true,
+          name: true,
         },
-        orderBy: { firstName: 'desc' },
+        orderBy: { name: 'desc' },
       })
 
       const res = translatorsWithoutPagination.map((item) => ({
         id: item.id,
-        name: `${item.firstName} ${item.lastName}`,
+        name: item.name,
       }))
 
       return ApiResponseHandler.success(res)
@@ -37,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     const searchConfig: SearchConfig = {
-      searchFields: ['firstName', 'lastName'],
+      searchFields: ['name'],
     }
     const where = PaginationHelper.buildWhereClause(search, filters, searchConfig)
 
@@ -48,10 +47,9 @@ export async function GET(request: NextRequest) {
         take: limit,
         select: {
           id: true,
-          firstName: true,
-          lastName: true,
+          name: true,
         },
-        orderBy: { lastName: 'desc' },
+        orderBy: { name: 'desc' },
       }),
       prisma.translator.count({ where }),
     ])

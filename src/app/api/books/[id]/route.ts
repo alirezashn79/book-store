@@ -18,8 +18,7 @@ export async function GET(request: NextRequest, { params }: Params) {
             author: {
               select: {
                 id: true,
-                firstName: true,
-                lastName: true,
+                name: true,
               },
             },
           },
@@ -29,8 +28,7 @@ export async function GET(request: NextRequest, { params }: Params) {
             translator: {
               select: {
                 id: true,
-                firstName: true,
-                lastName: true,
+                name: true,
               },
             },
           },

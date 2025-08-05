@@ -89,3 +89,7 @@ export type PrismaWhereClause = {
   string,
   PrismaStringFilter | PrismaNumberFilter | PrismaBooleanFilter | string | number | boolean
 >
+
+export interface IQueryKey {
+  queryKey: (string | number | boolean)[]
+}

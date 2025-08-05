@@ -65,6 +65,7 @@ export default function SelectCategory({ formsetValue, error, isSuccess }: IProp
         loadingMessage={() => (
           <div className="mx-auto my-4 size-5 animate-spin rounded-full border-t-2 border-blue-500" />
         )}
+        noOptionsMessage={() => 'دسته بندی ای وجود ندارد'}
         isClearable
         isDisabled={isPending}
         isLoading={isLoading || isPending}

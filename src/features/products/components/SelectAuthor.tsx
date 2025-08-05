@@ -29,19 +29,16 @@ export default function SelectAuthor({ formsetValue, error, isSuccess }: IProps)
   }))
 
   const createAuthor = async (newLabel: string) => {
-    const [firstName, lastName] = newLabel.trim().split(' ')
     await mutateAsync(
       {
-        firstName,
-        lastName,
+        name: newLabel,
       },
       {
         onSuccess: async (e) => {
           await refetch()
           const {
-            data: { id, firstName, lastName },
-          } = (await e.json()) as { data: { id: number; firstName: string; lastName: string } }
-          const name = `${firstName} ${lastName}`
+            data: { id, name },
+          } = (await e.json()) as { data: { id: number; name: string } }
           setValue((prev) => [...(prev ?? []), { label: name, value: String(id) }])
         },
       }
@@ -68,6 +65,7 @@ export default function SelectAuthor({ formsetValue, error, isSuccess }: IProps)
         loadingMessage={() => (
           <div className="mx-auto my-4 size-5 animate-spin rounded-full border-t-2 border-blue-500" />
         )}
+        noOptionsMessage={() => 'نویسنده ای وجود ندارد'}
         isClearable
         isDisabled={isPending}
         isLoading={isLoading || isPending}

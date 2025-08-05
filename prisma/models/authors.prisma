@@ -1,7 +1,6 @@
 model Author {
     id        Int          @id @default(autoincrement())
-    firstName String
-    lastName  String
+    name      String
     biography String?
     birthDate DateTime?
     deathDate DateTime?

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return ApiResponseHandler.validationError(validationResullt.error._zod.def)
     }
 
-    const { name, email, password } = validationResullt.data
+    const { name, email, password, phone } = validationResullt.data
 
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -30,11 +30,14 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await hashPass(password)
 
+    const usersCount = await prisma.user.count()
     const user = await prisma.user.create({
       data: {
         name,
         email,
+        phone,
         password: hashedPassword,
+        role: usersCount === 0 ? 'ADMIN' : 'CUSTOMER',
       },
     })
 

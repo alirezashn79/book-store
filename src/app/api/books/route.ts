@@ -31,14 +31,7 @@ export async function GET(request: NextRequest) {
           authors: {
             some: {
               author: {
-                OR: [
-                  {
-                    firstName: { contains: search, mode: 'insensitive' },
-                  },
-                  {
-                    lastName: { contains: search, mode: 'insensitive' },
-                  },
-                ],
+                name: { contains: search, mode: 'insensitive' },
               },
             },
           },
@@ -47,14 +40,7 @@ export async function GET(request: NextRequest) {
           translators: {
             some: {
               translator: {
-                OR: [
-                  {
-                    firstName: { contains: search, mode: 'insensitive' },
-                  },
-                  {
-                    lastName: { contains: search, mode: 'insensitive' },
-                  },
-                ],
+                name: { contains: search, mode: 'insensitive' },
               },
             },
           },
@@ -71,18 +57,26 @@ export async function GET(request: NextRequest) {
           id: true,
           title: true,
           price: true,
-          reviews: {
-            select: {
-              id: true,
-              rating: true,
-            },
-          },
+          isActive: true,
+          stock: true,
           images: {
             take: 1,
             orderBy: { uploadedAt: 'asc' },
             select: {
               id: true,
               url: true,
+              blurDataURL: true,
+            },
+          },
+          categories: {
+            take: 2,
+            select: {
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -93,10 +87,15 @@ export async function GET(request: NextRequest) {
       prisma.book.count({ where }),
     ])
 
+    const responseData = data.map((item) => ({
+      ...item,
+      categories: item.categories.flatMap((it) => it.category),
+    }))
+
     const meta = PaginationHelper.createMeta(total, page, limit, search)
 
     const response = {
-      data,
+      data: responseData,
       meta,
     }
 

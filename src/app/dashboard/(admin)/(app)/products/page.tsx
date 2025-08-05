@@ -1,28 +1,37 @@
-'use client'
-import ComponentCard from '@/components/common/ComponentCard'
 import PageBreadcrumb from '@/components/common/PageBreadCrumb'
-import BasicTableOne from '@/components/tables/BasicTableOne'
-import Button from '@/components/ui/button/Button'
-import { PlusIcon } from '@/icons'
-import Link from 'next/link'
-import { useCallback } from 'react'
+import { endpoints } from '@/endpoints'
+import ProductList from '@/features/products/components/ProductList'
+import { IGetBooks } from '@/features/products/types'
+import { ApiResponse, PaginatedResponse } from '@/types/api'
 
-export default function ProductsPage() {
-  const addLinkBtn = useCallback(
-    () => (
-      <Link href="/dashboard/products/add">
-        <Button endIcon={<PlusIcon />}>افزودن</Button>
-      </Link>
-    ),
-    []
-  )
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ search?: string; page?: string }>
+}) {
+  const { search, page } = await searchParams
+
+  const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/${endpoints.books.default}`)
+  if (search) url.searchParams.set('search', search)
+  if (page) url.searchParams.set('page', page)
+
+  const data = await fetch(url, {
+    next: { revalidate: 60, tags: ['books'] },
+  })
+  const dataJson = (await data.json()) as ApiResponse<PaginatedResponse<IGetBooks>>
+
+  console.log(dataJson)
+
+  if (!dataJson.success) throw new Error('error to fetch books')
 
   return (
     <div>
       <PageBreadcrumb pageTitle="محصولات" />
-      <ComponentCard button={addLinkBtn()} title="Basic Table 1">
-        <BasicTableOne />
-      </ComponentCard>
+      <ProductList
+        data={dataJson.data}
+        initialSearch={search || ''}
+        initialPage={parseInt(page || '1')}
+      />
     </div>
   )
 }

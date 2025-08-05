@@ -31,13 +31,13 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user) {
-      return ApiResponseHandler.unauthorized('کاربر یافت نشد')
+      return ApiResponseHandler.notFound('کاربر یافت نشد')
     }
 
     const isPasswordMatched = await comparePass(password, user.password)
 
     if (!isPasswordMatched) {
-      return ApiResponseHandler.unauthorized('کاربر یافت نشد')
+      return ApiResponseHandler.notFound('کاربر یافت نشد')
     }
 
     const userWithoutPassword = omit(user, ['password'])

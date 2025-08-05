@@ -4,8 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
 interface ICreateAuthorProps {
-  firstName: string
-  lastName: string
+  name: string
   biography?: string
   birthDate?: string
   deathDate?: string

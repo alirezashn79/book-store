@@ -29,19 +29,17 @@ export default function SelectTranslator({ formsetValue, error, isSuccess }: IPr
   }))
 
   const createTranslator = async (newLabel: string) => {
-    const [firstName, lastName] = newLabel.trim().split(' ')
     await mutateAsync(
       {
-        firstName,
-        lastName,
+        name: newLabel,
       },
       {
         onSuccess: async (e) => {
           await refetch()
           const {
-            data: { id, firstName, lastName },
-          } = (await e.json()) as { data: { id: number; firstName: string; lastName: string } }
-          const name = `${firstName} ${lastName}`
+            data: { id, name },
+          } = (await e.json()) as { data: { id: number; name: string } }
+
           setValue((prev) => [...(prev ?? []), { label: name, value: String(id) }])
         },
       }

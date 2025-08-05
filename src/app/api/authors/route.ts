@@ -15,15 +15,14 @@ export async function GET(request: NextRequest) {
       const categoriesWithoutPagination = await prisma.author.findMany({
         select: {
           id: true,
-          firstName: true,
-          lastName: true,
+          name: true,
         },
-        orderBy: { firstName: 'desc' },
+        orderBy: { name: 'desc' },
       })
 
       const res = categoriesWithoutPagination.map((item) => ({
         id: item.id,
-        name: `${item.firstName} ${item.lastName}`,
+        name: item.name,
       }))
 
       return ApiResponseHandler.success(res)
@@ -37,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     const searchConfig: SearchConfig = {
-      searchFields: ['firstName', 'lastName'],
+      searchFields: ['name'],
     }
 
     const where = PaginationHelper.buildWhereClause(search, filters, searchConfig)
@@ -49,8 +48,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         select: {
           id: true,
-          firstName: true,
-          lastName: true,
+          name: true,
           photo: {
             select: {
               id: true,
@@ -58,7 +56,7 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        orderBy: { lastName: 'desc' },
+        orderBy: { name: 'desc' },
       }),
       prisma.author.count({ where }),
     ])
@@ -92,8 +90,7 @@ export async function POST(request: NextRequest) {
     const data = validationResult.data
     const author = await prisma.author.create({
       data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
+        name: data.name,
         biography: data.biography,
         birthDate: data.birthDate ? new Date(data.birthDate) : null,
         deathDate: data.deathDate ? new Date(data.deathDate) : null,
