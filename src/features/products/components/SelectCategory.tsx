@@ -12,15 +12,16 @@ interface IProps {
   error?: string
   formsetValue: UseFormSetValue<ICreateBookSchemaType>
   isSuccess: boolean
+  initialValue?: MultiValue<OptionType>
 }
 
-export default function SelectCategory({ formsetValue, error, isSuccess }: IProps) {
+export default function SelectCategory({ formsetValue, error, isSuccess, initialValue }: IProps) {
   const {
     data: categories,
     refetch,
     isLoading,
   } = useGetCategories({ responseType: true, options: { enabled: false } })
-  const [value, setValue] = useState<MultiValue<OptionType> | null>(null)
+  const [value, setValue] = useState<MultiValue<OptionType> | null>(initialValue ?? null)
   const { mutateAsync, isPending } = useCreateCategory()
 
   const categoryOptions = categories?.map((item) => ({

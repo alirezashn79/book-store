@@ -6,13 +6,16 @@ import Label from '@/components/form/Label'
 import Switch from '@/components/form/switch/Switch'
 import Button from '@/components/ui/button/Button'
 import { compact } from '@/libs/compact'
+import { omit } from '@/libs/omit'
+import { diff } from 'deep-object-diff'
 import dynamic from 'next/dynamic'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Controller, SubmitHandler, useForm, UseFormSetValue, useWatch } from 'react-hook-form'
-import useCreateBook from '../hooks/useCreateBook'
-import { ICreateBookSchemaType } from '../schema'
+import { revalidateBookAction } from '../actions/revalidateBook'
 import { revalidateBooksAction } from '../actions/revalidateBooks'
-
+import useUpdateBook from '../hooks/useUpdateBook'
+import { IBookUpdateSchemaType, ICreateBookSchemaType } from '../schema'
+import { IGetSingleBook } from '../types'
 const MediaSelector = dynamic(() => import('@/components/mediaSelector/MediaSelector'), {
   ssr: false,
   loading: () => (
@@ -50,23 +53,129 @@ const SelectTranslator = dynamic(() => import('./SelectTranslator'), {
   ),
 })
 
-export default function CreateProductForm() {
-  const [isShowOptionalFields, setIsShowOptionalFields] = useState(false)
-  const { handleSubmit, control, setValue, reset } = useForm<ICreateBookSchemaType>({ mode: 'all' })
-  const { imageIds, price, stock } = useWatch<ICreateBookSchemaType>({
+interface IProps {
+  id: number
+  initialData: IGetSingleBook
+}
+
+export default function UpdateProductForm({ id, initialData }: IProps) {
+  const [isShowOptionalFields, setIsShowOptionalFields] = useState(true)
+  const cleanedData = useMemo(() => {
+    const baseData = omit(initialData, [
+      'categories',
+      'authors',
+      'topics',
+      'images',
+      'translators',
+      'id',
+      'publisher',
+      'pdfUrl',
+      'createdAt',
+      'updatedAt',
+      'format',
+    ])
+
+    return {
+      ...baseData,
+      imageIds: initialData.images?.map((item) => item.id).toSorted() || [],
+      authorIds: initialData.authors?.map((item) => item.id).toSorted() || [],
+      translatorIds: initialData.translators?.map((item) => item.id).toSorted() || [],
+      categoryIds: initialData.categories?.map((item) => item.id).toSorted() || [],
+      topicIds: initialData.topics?.map((item) => item.id).toSorted() || [],
+      publisherId: initialData.publisher?.id || 0,
+    }
+  }, [initialData])
+
+  const initialCategories = useMemo(
+    () =>
+      initialData?.categories?.map((item) => ({
+        label: item.name,
+        value: item.id.toString(),
+      })),
+    [initialData]
+  )
+
+  const initialTopics = useMemo(
+    () =>
+      initialData?.topics?.map((item) => ({
+        label: item.name,
+        value: item.id.toString(),
+      })),
+    [initialData]
+  )
+
+  const initialAuthors = useMemo(
+    () =>
+      initialData?.authors?.map((item) => ({
+        label: item.name,
+        value: item.id.toString(),
+      })),
+    [initialData]
+  )
+
+  const initialTranslators = useMemo(
+    () =>
+      initialData?.translators?.map((item) => ({
+        label: item.name,
+        value: item.id.toString(),
+      })),
+    [initialData]
+  )
+
+  const initialPublisher = useMemo(
+    () => ({
+      label: initialData.publisher.name,
+      value: initialData.publisher.id.toString(),
+    }),
+    [initialData]
+  )
+
+  const { handleSubmit, control, setValue } = useForm<IBookUpdateSchemaType>({
+    mode: 'all',
+    defaultValues: {
+      ...(compact(cleanedData) as IBookUpdateSchemaType),
+    },
+  })
+  const { imageIds, price, stock } = useWatch<IBookUpdateSchemaType>({
     control,
   })
 
-  const { mutateAsync, isPending, isSuccess } = useCreateBook()
-  const onSubmit: SubmitHandler<ICreateBookSchemaType> = async (values) => {
-    await mutateAsync(compact(values) as unknown as ICreateBookSchemaType, {
-      onSuccess: async () => {
-        await revalidateBooksAction()
-        reset()
-      },
-    })
-  }
+  const { mutateAsync, isPending } = useUpdateBook()
 
+  const onSubmit: SubmitHandler<IBookUpdateSchemaType> = async (values) => {
+    const sortedValues = {
+      ...values,
+      imageIds: values.imageIds?.toSorted(),
+      categoryIds: values.categoryIds?.toSorted(),
+      topicIds: values.topicIds?.toSorted(),
+      authorIds: values.authorIds?.toSorted(),
+      translatorIds: values.translatorIds?.toSorted(),
+    }
+    const updatedvalues = diff(cleanedData, sortedValues)
+
+    if (Object.keys(updatedvalues).length === 0) {
+      alert('تغییرات جدیدی وارد نشده است')
+      return
+    }
+
+    const _updatedValuesArray = Object.entries(updatedvalues).map(([key, value]) => {
+      if (key.toLocaleLowerCase().includes('ids')) {
+        return { [key]: sortedValues[key as keyof typeof values] }
+      } else return { [key]: value }
+    })
+
+    const finalValues = Object.assign({}, ..._updatedValuesArray)
+
+    await mutateAsync(
+      { id, data: compact(finalValues) },
+      {
+        onSuccess: async () => {
+          await revalidateBookAction()
+          await revalidateBooksAction()
+        },
+      }
+    )
+  }
   return (
     <ComponentCard
       title="محصول جدید"
@@ -174,8 +283,9 @@ export default function CreateProductForm() {
               defaultValue={[]}
               render={({ fieldState }) => (
                 <SelectCategory
-                  isSuccess={isSuccess}
-                  formsetValue={setValue}
+                  initialValue={initialCategories}
+                  isSuccess={false}
+                  formsetValue={setValue as UseFormSetValue<ICreateBookSchemaType>}
                   error={fieldState.error?.message}
                 />
               )}
@@ -193,8 +303,9 @@ export default function CreateProductForm() {
               defaultValue={[]}
               render={({ fieldState }) => (
                 <SelectTopic
-                  isSuccess={isSuccess}
-                  formsetValue={setValue}
+                  initialValue={initialTopics}
+                  isSuccess={false}
+                  formsetValue={setValue as UseFormSetValue<ICreateBookSchemaType>}
                   error={fieldState.error?.message}
                 />
               )}
@@ -212,8 +323,9 @@ export default function CreateProductForm() {
               defaultValue={0}
               render={({ fieldState }) => (
                 <SelectPublisher
-                  isSuccess={isSuccess}
-                  formsetValue={setValue}
+                  initialValue={initialPublisher}
+                  isSuccess={false}
+                  formsetValue={setValue as UseFormSetValue<ICreateBookSchemaType>}
                   error={fieldState.error?.message}
                 />
               )}
@@ -231,8 +343,9 @@ export default function CreateProductForm() {
               defaultValue={[]}
               render={({ fieldState }) => (
                 <SelectAuthor
-                  isSuccess={isSuccess}
-                  formsetValue={setValue}
+                  initialValue={initialAuthors}
+                  isSuccess={false}
+                  formsetValue={setValue as UseFormSetValue<ICreateBookSchemaType>}
                   error={fieldState.error?.message}
                 />
               )}
@@ -289,8 +402,9 @@ export default function CreateProductForm() {
                   defaultValue={[]}
                   render={({ fieldState }) => (
                     <SelectTranslator
-                      isSuccess={isSuccess}
-                      formsetValue={setValue}
+                      initialValue={initialTranslators}
+                      isSuccess={false}
+                      formsetValue={setValue as UseFormSetValue<ICreateBookSchemaType>}
                       error={fieldState.error?.message}
                     />
                   )}

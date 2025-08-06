@@ -12,15 +12,16 @@ interface IProps {
   error?: string
   formsetValue: UseFormSetValue<ICreateBookSchemaType>
   isSuccess: boolean
+  initialValue?: SingleValue<OptionType>
 }
 
-export default function SelectPublisher({ formsetValue, error, isSuccess }: IProps) {
+export default function SelectPublisher({ formsetValue, error, isSuccess, initialValue }: IProps) {
   const {
     data: Publishers,
     refetch,
     isLoading,
   } = useGetPublishers({ responseType: true, options: { enabled: false } })
-  const [value, setValue] = useState<SingleValue<OptionType> | null>(null)
+  const [value, setValue] = useState<SingleValue<OptionType> | null>(initialValue ?? null)
   const { mutateAsync, isPending } = useCreatePublisher()
 
   const PublisherOptions = Publishers?.map((item) => ({

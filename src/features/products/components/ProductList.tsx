@@ -12,10 +12,11 @@ import { PaginatedResponse } from '@/types/api'
 import { BookOpenText, Edit2, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { IGetBooks } from '../types'
-import useDeleteBook from '../hooks/useDeleteBook'
 import { revalidateBooksAction } from '../actions/revalidateBooks'
+import useDeleteBook from '../hooks/useDeleteBook'
+import { IGetBooks } from '../types'
 
 interface IProps {
   data: PaginatedResponse<IGetBooks>
@@ -26,6 +27,7 @@ interface IProps {
 export default function ProductList({ data: books, initialSearch = '', initialPage = 1 }: IProps) {
   const [deleteItem, setDeleteItem] = useState<IGetBooks | null>(null)
   const { mutateAsync: deleteBook, isPending } = useDeleteBook()
+  const router = useRouter()
 
   const { page, search, setSearch, handlePageChange, searchValidation } = usePaginatedSearch({
     baseUrl: '/dashboard/products',
@@ -56,6 +58,10 @@ export default function ProductList({ data: books, initialSearch = '', initialPa
         },
       }
     )
+  }
+
+  const handleNavigateToEditPage = (id: string) => {
+    router.push(`/dashboard/products/${id}/edit`)
   }
 
   return (
@@ -209,7 +215,10 @@ export default function ProductList({ data: books, initialSearch = '', initialPa
                           >
                             <Trash2 className="size-4" />
                           </button>
-                          <button className="hover:text-brand-400">
+                          <button
+                            onClick={() => handleNavigateToEditPage(item.id)}
+                            className="hover:text-brand-400"
+                          >
                             <Edit2 className="size-4" />
                           </button>
                         </TableCell>

@@ -38,3 +38,4 @@ export const bookUpdateSchema = bookCreateSchema
   })
 
 export type ICreateBookSchemaType = z.infer<typeof bookCreateSchema>
+export type IBookUpdateSchemaType = z.infer<typeof bookUpdateSchema>

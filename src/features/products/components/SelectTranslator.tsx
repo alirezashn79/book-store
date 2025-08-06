@@ -12,15 +12,16 @@ interface IProps {
   error?: string
   formsetValue: UseFormSetValue<ICreateBookSchemaType>
   isSuccess: boolean
+  initialValue?: MultiValue<OptionType>
 }
 
-export default function SelectTranslator({ formsetValue, error, isSuccess }: IProps) {
+export default function SelectTranslator({ formsetValue, error, isSuccess, initialValue }: IProps) {
   const {
     data: translators,
     refetch,
     isLoading,
   } = useGetTranslators({ responseType: true, options: { enabled: false } })
-  const [value, setValue] = useState<MultiValue<OptionType> | null>(null)
+  const [value, setValue] = useState<MultiValue<OptionType> | null>(initialValue ?? null)
   const { mutateAsync, isPending } = useCreateTranslator()
 
   const translatorsOptions = translators?.map((item) => ({

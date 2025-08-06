@@ -38,6 +38,33 @@ export async function GET(request: NextRequest, { params }: Params) {
             id: true,
             url: true,
             fileName: true,
+            blurDataURL: true,
+          },
+        },
+        categories: {
+          select: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        topics: {
+          select: {
+            topic: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        publisher: {
+          select: {
+            id: true,
+            name: true,
           },
         },
       },
@@ -49,10 +76,14 @@ export async function GET(request: NextRequest, { params }: Params) {
 
     const authors = book.authors.map((rel) => rel.author)
     const translators = book.translators.map((rel) => rel.translator)
+    const categories = book.categories.map((rel) => rel.category)
+    const topics = book.topics.map((rel) => rel.topic)
     const response = {
       ...book,
       authors,
       translators,
+      categories,
+      topics,
     }
 
     return ApiResponseHandler.success(response)

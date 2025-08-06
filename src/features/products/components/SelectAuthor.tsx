@@ -12,15 +12,16 @@ interface IProps {
   error?: string
   formsetValue: UseFormSetValue<ICreateBookSchemaType>
   isSuccess: boolean
+  initialValue?: MultiValue<OptionType>
 }
 
-export default function SelectAuthor({ formsetValue, error, isSuccess }: IProps) {
+export default function SelectAuthor({ formsetValue, error, isSuccess, initialValue }: IProps) {
   const {
     data: authors,
     refetch,
     isLoading,
   } = useGetAuthors({ responseType: true, options: { enabled: false } })
-  const [value, setValue] = useState<MultiValue<OptionType> | null>(null)
+  const [value, setValue] = useState<MultiValue<OptionType> | null>(initialValue ?? null)
   const { mutateAsync, isPending } = useCreateAuthor()
 
   const authorsOptions = authors?.map((item) => ({
