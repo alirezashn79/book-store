@@ -1,0 +1,294 @@
+model Address {
+  id         Int     @id @default(autoincrement())
+  user       User    @relation(fields: [userId], references: [id])
+  userId     Int
+  country    String? @default("Iran")
+  state      String
+  city       String
+  street     String
+  postalCode String
+  longitude  Float?
+  latitude   Float?
+  isDefault  Boolean @default(false)
+  orders     Order[] @relation("AddressOrders")
+  type       String?
+}
+
+model Author {
+  id        Int          @id @default(autoincrement())
+  name      String
+  biography String?
+  birthDate DateTime?
+  deathDate DateTime?
+  bookLinks BookAuthor[]
+  photo     Media?       @relation(fields: [photoId], references: [id])
+  photoId   String?
+}
+
+model BookAuthor {
+  book     Book   @relation(fields: [bookId], references: [id])
+  bookId   Int
+  author   Author @relation(fields: [authorId], references: [id])
+  authorId Int
+
+  @@id([bookId, authorId])
+}
+
+model BookCategory {
+  book       Book     @relation(fields: [bookId], references: [id])
+  bookId     Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  @@id([bookId, categoryId])
+}
+
+model BookTopic {
+  book    Book  @relation(fields: [bookId], references: [id])
+  bookId  Int
+  topic   Topic @relation(fields: [topicId], references: [id])
+  topicId Int
+
+  @@id([bookId, topicId])
+}
+
+model BookTranslator {
+  book         Book       @relation(fields: [bookId], references: [id])
+  bookId       Int
+  translator   Translator @relation(fields: [translatorId], references: [id])
+  translatorId Int
+
+  @@id([bookId, translatorId])
+}
+
+model Book {
+  id           Int              @id @default(autoincrement())
+  title        String
+  description  String?
+  isbn         String?          @unique
+  price        Float
+  stock        Int              @default(0) // تعداد موجودی برای نسخه فیزیکی
+  pages        Int?
+  images       Media[]
+  pdfUrl       String? // در صورت PDF یا eBook
+  format       BookFormat?      @default(PHYSICAL)
+  publisher    Publisher?       @relation(fields: [publisherId], references: [id])
+  publisherId  Int?
+  categories   BookCategory[]
+  topics       BookTopic[]
+  authors      BookAuthor[]
+  translators  BookTranslator[]
+  orderItems   OrderItem[]
+  reviews      Review[]
+  CartItem     CartItem[]
+  isActive     Boolean?         @default(true)
+  publishYear  DateTime?
+  printEdition Int?
+  language     String?
+  paperType    String?
+  height       Int?
+  width        Int?
+  weight       Int?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+enum BookFormat {
+  PHYSICAL
+  PDF
+}
+
+model CartItem {
+  id     Int  @id @default(autoincrement())
+  cart   Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId Int
+  book   Book @relation(fields: [bookId], references: [id])
+  bookId Int
+
+  quantity Int   @default(1) // تعداد کتاب
+  price    Float // قیمت واحد کتاب در زمان افزودن به سبد
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  @@unique([cartId, bookId])
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int        @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt()
+  items     CartItem[]
+}
+
+model Category {
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
+  description String?
+  parent      Category?      @relation("CategoryToCategory", fields: [parentId], references: [id])
+  parentId    Int?
+  children    Category[]     @relation("CategoryToCategory")
+  bookLinks   BookCategory[]
+}
+
+model Media {
+  id           String   @id @default(cuid())
+  url          String
+  fileName     String
+  mimeType     String
+  size         Int
+  uploadedAt   DateTime @default(now())
+  blurDataURL  String?
+  thumbnailUrl String?
+  Book         Book?    @relation(fields: [bookId], references: [id])
+  bookId       Int?
+  width        Int?
+  height       Int?
+  Author       Author[]
+}
+
+model OrderItem {
+  id         Int   @id @default(autoincrement())
+  order      Order @relation(fields: [orderId], references: [id])
+  orderId    Int
+  book       Book  @relation(fields: [bookId], references: [id])
+  bookId     Int
+  quantity   Int
+  unitPrice  Float
+  totalPrice Float
+}
+
+model Order {
+  id           Int           @id @default(autoincrement())
+  user         User          @relation(fields: [userId], references: [id])
+  userId       Int
+  status       OrderStatus   @default(PENDING)
+  totalAmount  Float
+  items        OrderItem[]
+  transactions Transaction[]
+  address      Address?      @relation("AddressOrders", fields: [addressId], references: [id])
+  addressId    Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Publisher {
+  id          Int     @id @default(autoincrement())
+  name        String
+  website     String?
+  description String?
+  books       Book[]
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Review {
+  id        Int           @id @default(autoincrement())
+  user      User          @relation(fields: [userId], references: [id])
+  userId    Int
+  book      Book          @relation(fields: [bookId], references: [id])
+  bookId    Int
+  rating    Int           @default(5)
+  comment   String?
+  status    ReviewStatus? @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model Topic {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String?
+  bookLinks   BookTopic[]
+}
+
+model Transaction {
+  id              Int               @id @default(autoincrement())
+  order           Order             @relation(fields: [orderId], references: [id])
+  orderId         Int
+  transactionDate DateTime          @default(now())
+  amount          Float
+  method          PaymentMethod     @default(DIRECT_PAY)
+  status          TransactionStatus @default(PENDING)
+  User            User              @relation(fields: [userId], references: [id])
+  userId          Int
+  reference       String?
+}
+
+enum PaymentMethod {
+  CART_TO_CART
+  DIRECT_PAY
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Translator {
+  id        Int              @id @default(autoincrement())
+  name      String
+  biography String?
+  bookLinks BookTranslator[]
+}
+
+model User {
+  id                Int           @id @default(autoincrement())
+  name              String
+  email             String        @unique
+  password          String
+  role              UserRole      @default(CUSTOMER)
+  phone             String?
+  addresses         Address[]
+  orders            Order[]
+  reviews           Review[]
+  transactions      Transaction[]
+  Cart              Cart?
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  bio               String?
+  avatar            String?
+  avatarBlurDataURL String?
+  instagram         String?
+  twitter           String?
+  linkedin          String?
+  city              String?
+  country           String?
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

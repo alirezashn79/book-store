@@ -37,6 +37,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-src/assets/fonts/*
-
-/src/generated/prisma
+# src/assets/fonts/*
