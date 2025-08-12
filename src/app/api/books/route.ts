@@ -1,10 +1,10 @@
-import { bookCreateSchema } from '@/features/products/schema'
+import { bookCreateSchema } from '@/app/(app)/products/_schemas'
 import { Prisma } from '@/generated/prisma'
 import { adminOnly, getCurrentUser } from '@/libs/auth'
 import { omit } from '@/libs/omit'
 import { prisma } from '@/libs/prisma'
 import { ApiResponseHandler } from '@/utils/apiResponse'
-import { PaginationHelper } from '@/utils/pagination'
+import { PaginationHelper } from '@/utils/paginationHelper'
 import { NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {

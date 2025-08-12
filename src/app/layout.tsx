@@ -3,6 +3,7 @@ import './globals.css'
 import localFont from 'next/font/local'
 import ReactQueryProvider from '@/providers/reactQueryProvider'
 import { Toaster } from 'react-hot-toast'
+import { SidebarProvider } from '@/context/SidebarContext'
 const dana = localFont({
   src: [
     {
@@ -57,7 +58,7 @@ export default function RootLayout({
       <body className={`${dana.className} dark:bg-gray-900`}>
         <ThemeProvider>
           <ReactQueryProvider>
-            {children}
+            <SidebarProvider>{children}</SidebarProvider>
             <Toaster
               containerStyle={{
                 zIndex: 999999999999999,

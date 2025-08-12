@@ -2,6 +2,7 @@ export const endpoints = {
   auth: {
     login: 'auth/login',
     register: 'auth/register',
+    me: 'auth/me',
   },
 
   media: 'media',
@@ -22,5 +23,8 @@ export const endpoints = {
   },
   publishers: {
     default: 'publishers',
+  },
+  users: {
+    default: 'users',
   },
 }

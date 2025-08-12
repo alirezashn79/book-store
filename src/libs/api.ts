@@ -31,7 +31,7 @@ export const api = ({ isAuth = true }: { isAuth?: boolean } = {}) => {
               toast.error('خطای شبکه یا پاسخ نامعتبر')
             } finally {
               if (response.status === 401) {
-                window.location.href = '/dashboard/signin'
+                window.location.href = '/signin'
               }
             }
           }

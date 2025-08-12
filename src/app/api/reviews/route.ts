@@ -2,7 +2,7 @@ import { createReviewSchema } from '@/features/reviews/schema'
 import { getCurrentUser } from '@/libs/auth'
 import { prisma } from '@/libs/prisma'
 import { ApiResponseHandler } from '@/utils/apiResponse'
-import { PaginationHelper } from '@/utils/pagination'
+import { PaginationHelper } from '@/utils/paginationHelper'
 import { NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {

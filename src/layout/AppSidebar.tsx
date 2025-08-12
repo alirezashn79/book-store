@@ -1,22 +1,11 @@
 'use client'
-import React, { useEffect, useRef, useState, useCallback } from 'react'
-import Link from 'next/link'
+import { Images } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useSidebar } from '../context/SidebarContext'
-import {
-  BoxCubeIcon,
-  BoxIcon,
-  CalenderIcon,
-  ChevronDownIcon,
-  GridIcon,
-  HorizontaLDots,
-  PageIcon,
-  PieChartIcon,
-  PlugInIcon,
-  TableIcon,
-  UserCircleIcon,
-} from '../icons/index'
+import { BoxIcon, ChevronDownIcon, GridIcon, HorizontaLDots, UserCircleIcon } from '../icons/index'
 
 type NavItem = {
   name: string
@@ -27,79 +16,42 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: 'Dashboard',
-    subItems: [{ name: 'Ecommerce', path: '/', pro: false }],
+    name: 'داشبورد',
+    path: '/',
   },
-
   {
-    icon: <CalenderIcon />,
-    name: 'Calendar',
-    path: '/calendar',
+    icon: <Images />,
+    name: 'رسانه ها',
+    path: '/media',
   },
-
   {
     name: 'محصولات',
     icon: <BoxIcon />,
     subItems: [
       { name: 'لیست', path: '/products' },
-      { name: 'اضافه کردن', path: '/products/add' },
-    ],
-  },
-  {
-    icon: <GridIcon />,
-    name: 'رسانه ها',
-    path: '/media',
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: 'User Profile',
-    path: '/profile',
-  },
-
-  {
-    name: 'Tables',
-    icon: <TableIcon />,
-    subItems: [{ name: 'Basic Tables', path: '/basic-tables', pro: false }],
-  },
-  {
-    name: 'Pages',
-    icon: <PageIcon />,
-    subItems: [
-      { name: 'Blank Page', path: '/blank', pro: false },
-      { name: '404 Error', path: '/error-404', pro: false },
+      { name: 'محصول جدید', path: '/products/add' },
     ],
   },
 ]
 
 const othersItems: NavItem[] = [
   {
-    icon: <PieChartIcon />,
-    name: 'Charts',
-    subItems: [
-      { name: 'Line Chart', path: '/line-chart', pro: false },
-      { name: 'Bar Chart', path: '/bar-chart', pro: false },
-    ],
+    icon: <UserCircleIcon />,
+    name: 'پروفایل',
+    path: '/profile',
   },
-  {
-    icon: <BoxCubeIcon />,
-    name: 'UI Elements',
-    subItems: [
-      { name: 'Alerts', path: '/alerts', pro: false },
-      { name: 'Avatar', path: '/avatars', pro: false },
-      { name: 'Badge', path: '/badge', pro: false },
-      { name: 'Buttons', path: '/buttons', pro: false },
-      { name: 'Images', path: '/images', pro: false },
-      { name: 'Videos', path: '/videos', pro: false },
-    ],
-  },
-  {
-    icon: <PlugInIcon />,
-    name: 'Authentication',
-    subItems: [
-      { name: 'Sign In', path: '/signin', pro: false },
-      { name: 'Sign Up', path: '/signup', pro: false },
-    ],
-  },
+  //   {
+  //     icon: <BoxCubeIcon />,
+  //     name: 'UI Elements',
+  //     subItems: [
+  //       { name: 'Alerts', path: '/alerts', pro: false },
+  //       { name: 'Avatar', path: '/avatars', pro: false },
+  //       { name: 'Badge', path: '/badge', pro: false },
+  //       { name: 'Buttons', path: '/buttons', pro: false },
+  //       { name: 'Images', path: '/images', pro: false },
+  //       { name: 'Videos', path: '/videos', pro: false },
+  //     ],
+  //   },
 ]
 
 const AppSidebar: React.FC = () => {
@@ -146,7 +98,7 @@ const AppSidebar: React.FC = () => {
           ) : (
             nav.path && (
               <Link
-                href={'/dashboard' + nav.path}
+                href={nav.path}
                 className={`menu-item group ${
                   isActive(nav.path) ? 'menu-item-active' : 'menu-item-inactive'
                 }`}
@@ -181,7 +133,7 @@ const AppSidebar: React.FC = () => {
                 {nav.subItems.map((subItem) => (
                   <li key={subItem.name}>
                     <Link
-                      href={'/dashboard' + subItem.path}
+                      href={subItem.path}
                       className={`menu-dropdown-item ${
                         isActive(subItem.path)
                           ? 'menu-dropdown-item-active'
@@ -232,7 +184,7 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   // const isActive = (path: string) => path === pathname;
-  const isActive = useCallback((path: string) => '/dashboard' + path === pathname, [pathname])
+  const isActive = useCallback((path: string) => path === pathname, [pathname])
 
   useEffect(() => {
     // Check if the current path matches any submenu item
@@ -293,26 +245,43 @@ const AppSidebar: React.FC = () => {
       <div
         className={`flex py-8 ${!isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'}`}
       >
-        <Link href="/">
+        <Link href="/" className="w-full">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <Image
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
+              {/* <Image
+                className="w-40 dark:hidden"
+                src="/images/logo/bookstore-logo-light.svg"
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/bookstore-logo-dark.svg"
                 alt="Logo"
                 width={150}
                 height={40}
-              />
+              /> */}
+              <h1 className="text-brand-500 mx-auto text-center text-3xl font-bold">Book Store</h1>
             </>
           ) : (
-            <Image src="/images/logo/logo-icon.svg" alt="Logo" width={32} height={32} />
+            <>
+              {/* <Image
+                className="dark:hidden"
+                src="/images/logo/bookstore-icon-light.svg"
+                alt="Logo"
+                width={32}
+                height={32}
+              />
+              <Image
+                className="hidden dark:block"
+                src="/images/logo/bookstore-icon-dark.svg"
+                alt="Logo"
+                width={32}
+                height={32}
+              /> */}
+              <h1 className="text-brand-500 mx-auto text-center text-3xl font-bold">BS</h1>
+            </>
           )}
         </Link>
       </div>

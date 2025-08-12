@@ -1,7 +1,7 @@
 'use client'
+import useDebounce from '@/hooks/useDebounce'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import useDebounce from '@/hooks/useDebounce'
 
 interface UsePaginatedSearchOptions {
   baseUrl: string
@@ -54,7 +54,7 @@ export default function usePaginatedSearch({
       router.push(baseUrl)
     }
 
-    const timeout = setTimeout(() => setIsNavigating(false), 500)
+    const timeout = setTimeout(() => setIsNavigating(false), 300)
     return () => clearTimeout(timeout)
   }, [debouncedSearch, initialSearch, router, baseUrl, minSearchLength])
 

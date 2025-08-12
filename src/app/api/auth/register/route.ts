@@ -1,4 +1,4 @@
-import { registerSchema } from '@/features/auth/schema/register'
+import { registerSchema } from '@/app/(auth)/_schemas/register'
 import { hashPass } from '@/libs/bcryptjs'
 import { omit } from '@/libs/omit'
 import { prisma } from '@/libs/prisma'

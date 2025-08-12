@@ -70,18 +70,18 @@ export default function StatisticsChart() {
     xaxis: {
       type: 'category', // Category-based x-axis
       categories: [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
+        'فروردین',
+        'اردیبهست',
+        'خرداد',
+        'تیر',
+        'مرداد',
+        'شهریور',
+        'مهر',
+        'آبان',
+        'آذر',
+        'دی',
+        'بهمن',
+        'اسفند',
       ],
       axisBorder: {
         show: false, // Hide x-axis border
@@ -123,14 +123,11 @@ export default function StatisticsChart() {
     <div className="rounded-2xl border border-gray-200 bg-white px-5 pt-5 pb-5 sm:px-6 sm:pt-6 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
         <div className="w-full">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Statistics</h3>
-          <p className="text-theme-sm mt-1 text-gray-500 dark:text-gray-400">
-            Target you’ve set for each month
-          </p>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">آمار فروش</h3>
         </div>
-        <div className="flex w-full items-start gap-3 sm:justify-end">
+        {/* <div className="flex w-full items-start gap-3 sm:justify-end">
           <ChartTab />
-        </div>
+        </div> */}
       </div>
 
       <div className="custom-scrollbar max-w-full overflow-x-auto">
