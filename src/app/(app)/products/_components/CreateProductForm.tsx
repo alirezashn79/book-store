@@ -164,6 +164,27 @@ export default function CreateProductForm() {
           </div>
 
           <div>
+            <Label>عکس ها</Label>
+            <Controller
+              control={control}
+              name="imageIds"
+              rules={{
+                required: { value: true, message: 'الزامی است' },
+              }}
+              defaultValue={[]}
+              render={({ fieldState }) => (
+                <MediaSelector
+                  count={3}
+                  values={imageIds ?? []}
+                  field={'imageIds' as never}
+                  setValue={setValue as UseFormSetValue<object>}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
             <Label>دسته بندی</Label>
             <Controller
               control={control}
@@ -239,27 +260,6 @@ export default function CreateProductForm() {
             />
           </div>
 
-          <div>
-            <Label>عکس ها</Label>
-            <Controller
-              control={control}
-              name="imageIds"
-              rules={{
-                required: { value: true, message: 'الزامی است' },
-              }}
-              defaultValue={[]}
-              render={({ fieldState }) => (
-                <MediaSelector
-                  count={3}
-                  values={imageIds ?? []}
-                  field={'imageIds' as never}
-                  setValue={setValue as UseFormSetValue<object>}
-                  error={fieldState.error?.message}
-                />
-              )}
-            />
-          </div>
-
           <div className="flex items-center justify-center">
             <Controller
               control={control}
@@ -304,7 +304,6 @@ export default function CreateProductForm() {
                   name="isbn"
                   rules={{
                     required: false,
-                    pattern: { value: /^[0-9\-]{10,17}$/, message: 'فرمت شابک صحیح نیست' },
                   }}
                   defaultValue=""
                   render={({ field, fieldState }) => (

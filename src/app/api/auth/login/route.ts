@@ -1,4 +1,4 @@
-import { loginSchema } from '@/app/(auth)/_schemas/login'
+import { loginSchema } from '@/app/auth/_schemas/login'
 import { comparePass } from '@/libs/bcryptjs'
 import { omit } from '@/libs/omit'
 import { prisma } from '@/libs/prisma'

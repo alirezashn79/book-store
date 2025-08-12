@@ -11,7 +11,7 @@ type UseGetMediaOptions = {
 const queryFn = async ({ pageParam = 1 }): Promise<PaginatedResponse<MediaItem>> => {
   const urlParams = new URLSearchParams()
   urlParams.append('page', String(pageParam))
-  urlParams.append('limit', '20')
+  urlParams.append('limit', '5')
 
   const url = `${endpoints.media}?${urlParams.toString()}`
   const response = await api().get<ApiResponse<PaginatedResponse<MediaItem>>>(url).json()

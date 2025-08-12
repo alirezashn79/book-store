@@ -76,7 +76,7 @@ export default function SelectAuthor({ formsetValue, error, isSuccess, initialVa
         onCreateOption={createAuthor}
         onChange={(newValue) => handleChange(newValue)}
         value={value}
-        placeholder={isPending ? 'در حال ایجاد...' : 'افزودن یا ایجاد مترجم'}
+        placeholder={isPending ? 'در حال ایجاد...' : 'افزودن یا ایجاد نویسنده'}
         formatCreateLabel={(value: string) => `ایجاد "${value}"`}
       />
       <div className="text-warning-500 mt-0.5 flex items-center gap-1">

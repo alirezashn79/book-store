@@ -1,7 +1,7 @@
 'use client'
 
 import { useSidebar } from '@/context/SidebarContext'
-import useGetMe from '@/app/(auth)/_hooks/useGetMe'
+import useGetMe from '@/app/auth/_hooks/useGetMe'
 import { useUppyManager } from '@/hooks/useUppyManager'
 import AppHeader from '@/layout/AppHeader'
 import AppSidebar from '@/layout/AppSidebar'

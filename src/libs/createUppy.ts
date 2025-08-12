@@ -5,7 +5,7 @@ import Persian from '@uppy/locales/lib/fa_IR'
 import XHR from '@uppy/xhr-upload'
 
 export function createUppy() {
-  const endpoint = process.env.NEXT_PUBLIC_BASE_URL + '/api/media'
+  const endpoint = '/api/media'
 
   return new Uppy({
     locale: Persian,

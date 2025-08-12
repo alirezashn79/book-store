@@ -11,7 +11,7 @@ export default async function ProductsPage({
 }) {
   const { search, page } = await searchParams
 
-  const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/${endpoints.books.default}`)
+  const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/${endpoints.books.default}?limit=5`)
   if (search) url.searchParams.set('search', search)
   if (page) url.searchParams.set('page', page)
 

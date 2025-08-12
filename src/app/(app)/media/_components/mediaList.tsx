@@ -36,13 +36,17 @@ export default function MedisList() {
 
   const mediaList = useMemo(() => media && media.pages.flatMap((group) => group.data), [media])
   const total = useMemo(() => media && media.pages.flatMap((group) => group.meta)[0].total, [media])
+  const isEmpty = useMemo(
+    () => media && media.pages.flatMap((group) => group.data).length === 0,
+    [media]
+  )
 
   return (
     <>
       <DeleteMedia isDelete={isDelete} setIsDelete={setIsDelete} />
       {isRefetching && <p className="my-4 animate-pulse text-center">در حال بروزرسانی...</p>}
       {isUploading && <p className="my-4 animate-pulse text-center">در حال آپلود...</p>}
-      {total && !isRefetching && !isUploading && (
+      {!!total && !isRefetching && !isUploading && (
         <p className="my-4 text-center">تعداد کل ({total})</p>
       )}
       <div
@@ -57,6 +61,11 @@ export default function MedisList() {
             <div className="col-span-2 row-span-2 min-h-80 md:col-span-3 lg:col-span-2 lg:h-full">
               <MediaUploader />
             </div>
+            {isEmpty && (
+              <div className="col-span-2 flex h-40 w-full justify-center md:col-span-3 xl:col-span-4">
+                رسانه ای وجود ندارد!
+              </div>
+            )}
             {mediaList?.map((mediaItem) => (
               <div
                 onContextMenu={(e) => onRightClick(e, mediaItem.id)}

@@ -83,6 +83,10 @@ export default function MediaSelector<T extends object>({
       window.removeEventListener('keydown', onEscape)
     }
   }, [])
+  const isEmpty = useMemo(
+    () => media && media.pages.flatMap((group) => group.data).length === 0,
+    [media]
+  )
 
   return (
     <>
@@ -127,11 +131,16 @@ export default function MediaSelector<T extends object>({
             <h3>انتخاب رسانه</h3>
             <div className="flex items-center gap-x-2">
               {values.length > 0 && (
-                <Button onClick={reset} variant="outline" className="h-10 min-w-20">
+                <Button type="button" onClick={reset} variant="outline" className="h-10 min-w-20">
                   لغو
                 </Button>
               )}
-              <Button onClick={() => setIsOpen(false)} variant="primary" className="h-10 min-w-20">
+              <Button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                variant="primary"
+                className="h-10 min-w-20"
+              >
                 انتخاب
               </Button>
             </div>
@@ -150,6 +159,11 @@ export default function MediaSelector<T extends object>({
               <div className="col-span-2 row-span-2 min-h-80 md:col-span-3 lg:col-span-2 lg:h-full">
                 <MediaUploader />
               </div>
+              {isEmpty && (
+                <div className="col-span-2 flex h-40 w-full justify-center md:col-span-3 xl:col-span-4">
+                  رسانه ای وجود ندارد!
+                </div>
+              )}
               {mediaList?.map((mediaItem) => (
                 <div
                   key={mediaItem.id}

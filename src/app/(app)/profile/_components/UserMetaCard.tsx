@@ -1,5 +1,5 @@
 'use client'
-import useGetMe from '@/app/(auth)/_hooks/useGetMe'
+import useGetMe from '@/app/auth/_hooks/useGetMe'
 import useUpdateProfile from '@/app/(app)/profile/_hooks/useUpdateProfile'
 import useUpdateUser from '@/app/(app)/profile/_hooks/useUpdateUser'
 import { UpdateUserInput, updateUserSchema } from '@/app/(app)/profile/_types'

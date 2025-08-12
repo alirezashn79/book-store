@@ -1,8 +1,8 @@
 'use client'
-import useGetMe from '@/app/(auth)/_hooks/useGetMe'
+import useGetMe from '@/app/auth/_hooks/useGetMe'
+import useLogout from '@/app/auth/_hooks/useLogout'
 import { LogOut, UserCircle2 } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
 import React, { useState } from 'react'
 import PulseLoader from 'react-spinners/PulseLoader'
 import { Dropdown } from '../ui/dropdown/Dropdown'
@@ -11,6 +11,11 @@ import { DropdownItem } from '../ui/dropdown/DropdownItem'
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false)
   const { data: user, isPending: isUserPending } = useGetMe()
+  const { mutateAsync: logout, isPending } = useLogout()
+
+  const handleLogout = async () => {
+    await logout()
+  }
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation()
@@ -87,13 +92,14 @@ export default function UserDropdown() {
             </DropdownItem>
           </li>
         </ul>
-        <Link
-          href="/signin"
+        <button
+          disabled={isPending}
+          onClick={handleLogout}
           className="group text-theme-sm mt-3 flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
           <LogOut />
           خروج
-        </Link>
+        </button>
       </Dropdown>
     </div>
   )

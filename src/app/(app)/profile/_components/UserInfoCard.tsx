@@ -1,6 +1,6 @@
 'use client'
 
-import useGetMe from '@/app/(auth)/_hooks/useGetMe'
+import useGetMe from '@/app/auth/_hooks/useGetMe'
 
 export default function UserInfoCard() {
   const { data: user, isPending: isUserLoading } = useGetMe()

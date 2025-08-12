@@ -23,7 +23,7 @@ async function queryFn({ queryKey }: IQueryKey) {
   } else {
     urlParams.delete('search')
   }
-  urlParams.append('limit', '10')
+  urlParams.append('limit', '5')
 
   const url = `${endpoints.books.default}?${urlParams.toString()}`
   const response = await api().get<ApiResponse<PaginatedResponse<IGetBooks>>>(url).json()
