@@ -3,9 +3,8 @@ import UserMetaCard from '@/app/(app)/profile/_components/UserMetaCard'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Next.js Profile | TailAdmin - Next.js Dashboard Template',
-  description:
-    'This is Next.js Profile page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template',
+  title: 'Dashboard',
+  description: 'This is Dashboard for bookStore',
 }
 
 export default function Profile() {
