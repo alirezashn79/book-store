@@ -1,6 +1,6 @@
 import ky from 'ky'
 import toast from 'react-hot-toast'
-
+// api instance
 export const api = ({ isAuth = true }: { isAuth?: boolean } = {}) => {
   return ky.create({
     prefixUrl: '/api',
